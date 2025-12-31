@@ -1318,6 +1318,5 @@ with st.sidebar:
     st.markdown("### ℹ️ Sobre")
     st.caption("**Rockbuzz - Gestão Financeira**")
     st.caption("Versão 2.3.0")
-=======
-
     st.caption("© 2025 - Todos os direitos reservados")
+
