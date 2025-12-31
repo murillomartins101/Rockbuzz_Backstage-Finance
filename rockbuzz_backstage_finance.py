@@ -685,7 +685,7 @@ elif page == "📒 Lançamentos":
         if tipo_sel != "Todos":
             sem_data = sem_data[sem_data["tipo"] == tipo_sel]
         if categoria_sel != "Todas":
-            sem_data = sem_data[sem_data["categoria"]] == categoria_sel
+            sem_data = sem_data[sem_data["categoria"] == categoria_sel]
         if busca_texto:
             sem_data = sem_data[sem_data["descricao"].str.contains(busca_texto, case=False, na=False)]
 
