@@ -414,18 +414,50 @@ if page == "📊 Dashboard":
             resultado = receitas - despesas
             qtd_shows = count_shows(dfp)
             ticket_medio = calcular_ticket_medio(dfp) if qtd_shows > 0 else 0.0
+            
+            # Novos indicadores avançados
+            margem_lucro = (resultado / receitas * 100) if receitas > 0 else 0.0
+            roi = (resultado / despesas * 100) if despesas > 0 else 0.0
+            qtd_transacoes = len(dfp)
+            media_transacao = dfp["valor"].abs().mean() if not dfp.empty else 0.0
+            
+            # Calcular período anterior para comparação
+            dias_periodo = (dt_max - dt_min).days + 1
+            dt_ant_max = dt_min - timedelta(days=1)
+            dt_ant_min = dt_ant_max - timedelta(days=dias_periodo - 1)
+            mask_ant = (df_com_data["data"].dt.date >= dt_ant_min) & (df_com_data["data"].dt.date <= dt_ant_max)
+            dfp_ant = df_com_data.loc[mask_ant].copy()
+            
+            receitas_ant = dfp_ant.loc[dfp_ant["valor"] > 0, "valor"].sum() if not dfp_ant.empty else 0
+            despesas_ant = -dfp_ant.loc[dfp_ant["valor"] < 0, "valor"].sum() if not dfp_ant.empty else 0
+            resultado_ant = receitas_ant - despesas_ant
+            
+            # Taxas de crescimento
+            cresc_receitas = ((receitas - receitas_ant) / receitas_ant * 100) if receitas_ant > 0 else None
+            cresc_despesas = ((despesas - despesas_ant) / despesas_ant * 100) if despesas_ant > 0 else None
+            cresc_resultado = ((resultado - resultado_ant) / abs(resultado_ant) * 100) if resultado_ant != 0 else None
 
             st.markdown(f"### 📊 Visão Geral: {get_periodo_descricao(dt_min, dt_max)}")
+            
+            # Primeira linha de métricas principais
             c1, c2, c3, c4, c5 = st.columns(5)
-            c1.metric("💰 Receitas", brl(receitas))
-            c2.metric("💸 Despesas", brl(despesas))
-            c3.metric("📈 Resultado", brl(resultado), delta=f"{(resultado/receitas*100):.1f}%" if receitas else None)
+            c1.metric("💰 Receitas", brl(receitas), delta=f"{cresc_receitas:+.1f}%" if cresc_receitas is not None else None)
+            c2.metric("💸 Despesas", brl(despesas), delta=f"{cresc_despesas:+.1f}%" if cresc_despesas is not None else None, delta_color="inverse")
+            c3.metric("📈 Resultado", brl(resultado), delta=f"{cresc_resultado:+.1f}%" if cresc_resultado is not None else None)
             c4.metric("🎤 Shows", int(qtd_shows))
             c5.metric("🎫 Ticket Médio", brl(ticket_medio) if qtd_shows > 0 else "N/A")
+            
+            # Segunda linha de indicadores avançados
+            st.markdown("#### 📈 Indicadores de Performance")
+            c6, c7, c8, c9 = st.columns(4)
+            c6.metric("📊 Margem de Lucro", f"{margem_lucro:.1f}%", help="Resultado / Receitas x 100")
+            c7.metric("💹 ROI", f"{roi:.1f}%", help="Retorno sobre Investimento: Resultado / Despesas x 100")
+            c8.metric("📋 Transações", qtd_transacoes)
+            c9.metric("💵 Média/Transação", brl(media_transacao))
 
             st.markdown("---")
-            tab1, tab2, tab3, tab4, tab5 = st.tabs([
-                "📊 Visão Geral", "💰 Receitas vs Despesas", "📈 Evolução", "🏷️ Categorias", "🎤 Análise de Shows"
+            tab1, tab2, tab3, tab4, tab5, tab6 = st.tabs([
+                "📊 Visão Geral", "💰 Receitas vs Despesas", "📈 Evolução", "🏷️ Categorias", "🎤 Análise de Shows", "📉 Analytics Avançados"
             ])
 
             with tab1:
@@ -576,6 +608,192 @@ if page == "📊 Dashboard":
                     else:
                         st.info("Nenhum show registrado no período selecionado.")
 
+            with tab6:
+                st.markdown("### 📉 Analytics Avançados")
+                
+                # Seção 1: Comparação com Período Anterior
+                st.markdown("#### 📊 Comparação com Período Anterior")
+                col_comp1, col_comp2 = st.columns(2)
+                
+                with col_comp1:
+                    st.markdown("**Período Atual**")
+                    st.write(f"📅 {get_periodo_descricao(dt_min, dt_max)}")
+                    st.metric("Receitas", brl(receitas))
+                    st.metric("Despesas", brl(despesas))
+                    st.metric("Resultado", brl(resultado))
+                
+                with col_comp2:
+                    st.markdown("**Período Anterior**")
+                    st.write(f"📅 {get_periodo_descricao(dt_ant_min, dt_ant_max)}")
+                    st.metric("Receitas", brl(receitas_ant), delta=f"{cresc_receitas:+.1f}%" if cresc_receitas is not None else None)
+                    st.metric("Despesas", brl(despesas_ant), delta=f"{cresc_despesas:+.1f}%" if cresc_despesas is not None else None, delta_color="inverse")
+                    st.metric("Resultado", brl(resultado_ant), delta=f"{cresc_resultado:+.1f}%" if cresc_resultado is not None else None)
+                
+                st.markdown("---")
+                
+                # Seção 2: Tendência do Ticket Médio por Show
+                st.markdown("#### 🎫 Tendência do Ticket Médio por Show")
+                base_shows_trend = df_com_data.loc[_only_shows_mask(df_com_data)].copy()
+                if not base_shows_trend.empty:
+                    base_shows_trend["ano_mes"] = base_shows_trend["data"].dt.to_period("M").astype(str)
+                    
+                    # Calcular ticket médio por mês
+                    ticket_por_mes = []
+                    for mes in sorted(base_shows_trend["ano_mes"].unique()):
+                        df_mes = base_shows_trend[base_shows_trend["ano_mes"] == mes]
+                        qtd_mes = count_shows(df_mes)
+                        if qtd_mes > 0:
+                            ticket_mes = calcular_ticket_medio(df_mes)
+                            ticket_por_mes.append({"Mês": mes, "Ticket Médio": ticket_mes, "Shows": qtd_mes})
+                    
+                    if ticket_por_mes:
+                        df_ticket = pd.DataFrame(ticket_por_mes)
+                        fig_ticket = go.Figure()
+                        fig_ticket.add_trace(go.Scatter(
+                            x=df_ticket["Mês"], y=df_ticket["Ticket Médio"],
+                            mode='lines+markers', name='Ticket Médio',
+                            line=dict(color='#2ecc71', width=3),
+                            marker=dict(size=10)
+                        ))
+                        fig_ticket.update_layout(
+                            title="Evolução do Ticket Médio por Show",
+                            xaxis_title="Mês", yaxis_title="Ticket Médio (R$)",
+                            height=400, hovermode='x unified'
+                        )
+                        st.plotly_chart(fig_ticket, use_container_width=True)
+                        
+                        # Tabela de detalhes
+                        df_ticket["Ticket Médio Fmt"] = df_ticket["Ticket Médio"].map(brl)
+                        st.dataframe(
+                            df_ticket[["Mês", "Shows", "Ticket Médio Fmt"]].rename(columns={"Ticket Médio Fmt": "Ticket Médio"}),
+                            use_container_width=True, hide_index=True
+                        )
+                    else:
+                        st.info("Dados insuficientes para análise de tendência de ticket médio.")
+                else:
+                    st.info("Nenhum show encontrado para análise de tendência.")
+                
+                st.markdown("---")
+                
+                # Seção 3: Projeção de Fluxo de Caixa
+                st.markdown("#### 💰 Projeção de Fluxo de Caixa (próximos 3 meses)")
+                
+                # Calcular médias mensais para projeção
+                monthly_data = df_com_data.groupby(df_com_data["data"].dt.to_period("M")).agg(
+                    receitas=("valor", lambda x: x[x > 0].sum()),
+                    despesas=("valor", lambda x: -x[x < 0].sum())
+                ).reset_index()
+                monthly_data["data"] = monthly_data["data"].astype(str)
+                
+                if len(monthly_data) >= 2:
+                    # Usar média dos últimos 3 meses para projeção
+                    ultimos_meses = monthly_data.tail(3)
+                    media_receitas = ultimos_meses["receitas"].mean()
+                    media_despesas = ultimos_meses["despesas"].mean()
+                    media_resultado = media_receitas - media_despesas
+                    
+                    # Criar projeção para próximos 3 meses
+                    hoje = datetime.now()
+                    projecao = []
+                    saldo_acum = resultado  # Começar do resultado atual
+                    
+                    for i in range(1, 4):
+                        mes_futuro = (hoje + timedelta(days=30*i)).strftime("%Y-%m")
+                        saldo_acum += media_resultado
+                        projecao.append({
+                            "Mês": mes_futuro,
+                            "Receitas Proj.": media_receitas,
+                            "Despesas Proj.": media_despesas,
+                            "Resultado Proj.": media_resultado,
+                            "Saldo Acumulado": saldo_acum
+                        })
+                    
+                    df_proj = pd.DataFrame(projecao)
+                    
+                    # Gráfico de projeção
+                    fig_proj = go.Figure()
+                    fig_proj.add_trace(go.Bar(
+                        x=df_proj["Mês"], y=df_proj["Receitas Proj."],
+                        name="Receitas Projetadas", marker_color='#2ecc71'
+                    ))
+                    fig_proj.add_trace(go.Bar(
+                        x=df_proj["Mês"], y=df_proj["Despesas Proj."],
+                        name="Despesas Projetadas", marker_color='#e74c3c'
+                    ))
+                    fig_proj.add_trace(go.Scatter(
+                        x=df_proj["Mês"], y=df_proj["Saldo Acumulado"],
+                        mode='lines+markers', name='Saldo Acumulado',
+                        line=dict(color='#3498db', width=3),
+                        yaxis='y2'
+                    ))
+                    fig_proj.update_layout(
+                        title="Projeção Financeira (baseada na média dos últimos 3 meses)",
+                        xaxis_title="Mês",
+                        yaxis_title="Valor (R$)",
+                        yaxis2=dict(title="Saldo Acumulado (R$)", overlaying='y', side='right'),
+                        barmode='group',
+                        height=450,
+                        hovermode='x unified'
+                    )
+                    st.plotly_chart(fig_proj, use_container_width=True)
+                    
+                    # Tabela de projeção
+                    df_proj_display = df_proj.copy()
+                    df_proj_display["Receitas Proj."] = df_proj_display["Receitas Proj."].map(brl)
+                    df_proj_display["Despesas Proj."] = df_proj_display["Despesas Proj."].map(brl)
+                    df_proj_display["Resultado Proj."] = df_proj_display["Resultado Proj."].map(brl)
+                    df_proj_display["Saldo Acumulado"] = df_proj_display["Saldo Acumulado"].map(brl)
+                    st.dataframe(df_proj_display, use_container_width=True, hide_index=True)
+                    
+                    st.caption("⚠️ Projeção baseada na média histórica dos últimos 3 meses. Valores reais podem variar.")
+                else:
+                    st.info("Dados históricos insuficientes para projeção. São necessários pelo menos 2 meses de dados.")
+                
+                st.markdown("---")
+                
+                # Seção 4: Análise de Sazonalidade
+                st.markdown("#### 📅 Análise de Sazonalidade")
+                if len(df_com_data) > 0:
+                    df_com_data_copy = df_com_data.copy()
+                    df_com_data_copy["mes_nome"] = df_com_data_copy["data"].dt.month_name()
+                    df_com_data_copy["mes_num"] = df_com_data_copy["data"].dt.month
+                    
+                    sazonalidade = df_com_data_copy.groupby(["mes_num", "mes_nome"]).agg(
+                        receitas=("valor", lambda x: x[x > 0].sum()),
+                        despesas=("valor", lambda x: -x[x < 0].sum()),
+                        transacoes=("valor", "count")
+                    ).reset_index().sort_values("mes_num")
+                    
+                    sazonalidade["resultado"] = sazonalidade["receitas"] - sazonalidade["despesas"]
+                    
+                    fig_saz = go.Figure()
+                    fig_saz.add_trace(go.Bar(
+                        x=sazonalidade["mes_nome"], y=sazonalidade["receitas"],
+                        name="Receitas", marker_color='#2ecc71'
+                    ))
+                    fig_saz.add_trace(go.Bar(
+                        x=sazonalidade["mes_nome"], y=sazonalidade["despesas"],
+                        name="Despesas", marker_color='#e74c3c'
+                    ))
+                    fig_saz.update_layout(
+                        title="Receitas e Despesas por Mês do Ano (Sazonalidade)",
+                        xaxis_title="Mês",
+                        yaxis_title="Valor (R$)",
+                        barmode='group',
+                        height=400
+                    )
+                    st.plotly_chart(fig_saz, use_container_width=True)
+                    
+                    # Identificar melhor e pior mês
+                    melhor_mes = sazonalidade.loc[sazonalidade["resultado"].idxmax()]
+                    pior_mes = sazonalidade.loc[sazonalidade["resultado"].idxmin()]
+                    
+                    col_saz1, col_saz2 = st.columns(2)
+                    with col_saz1:
+                        st.success(f"📈 **Melhor mês:** {melhor_mes['mes_nome']} (Resultado: {brl(melhor_mes['resultado'])})")
+                    with col_saz2:
+                        st.error(f"📉 **Pior mês:** {pior_mes['mes_nome']} (Resultado: {brl(pior_mes['resultado'])})")
+
 # =============================================================================
 # REGISTRAR NOVO LANÇAMENTO
 # =============================================================================
@@ -685,7 +903,7 @@ elif page == "📒 Lançamentos":
         if tipo_sel != "Todos":
             sem_data = sem_data[sem_data["tipo"] == tipo_sel]
         if categoria_sel != "Todas":
-            sem_data = sem_data[sem_data["categoria"]] == categoria_sel
+            sem_data = sem_data[sem_data["categoria"] == categoria_sel]
         if busca_texto:
             sem_data = sem_data[sem_data["descricao"].str.contains(busca_texto, case=False, na=False)]
 
@@ -1099,5 +1317,5 @@ with st.sidebar:
     st.markdown("---")
     st.markdown("### ℹ️ Sobre")
     st.caption("**Rockbuzz - Gestão Financeira**")
-    st.caption("Versão 2.2.0")
+    st.caption("Versão 2.3.0")
     st.caption("© 2025 - Todos os direitos reservados")
