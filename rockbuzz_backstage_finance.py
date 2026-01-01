@@ -29,16 +29,373 @@ st.set_page_config(
     page_icon="🤘"
 )
 
-# CSS
+# CSS - Modern Corporate Theme
 st.markdown("""
 <style>
-    .main-header {
-        font-size: 2.5rem; font-weight: bold; color: #FF4B4B;
-        text-align: center; margin-bottom: 2rem;
+    /* Import Google Fonts */
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+    
+    /* Global Styles */
+    .stApp {
+        font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
     }
-    .stAlert { border-radius: 10px; }
+    
+    /* Main Header */
+    .main-header {
+        font-size: 2rem;
+        font-weight: 700;
+        background: linear-gradient(135deg, #1e3a5f 0%, #2d5a87 100%);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+        text-align: left;
+        margin-bottom: 1.5rem;
+        padding-bottom: 0.5rem;
+        border-bottom: 3px solid #e8f4f8;
+    }
+    
+    /* KPI Card Styles */
+    .kpi-container {
+        display: flex;
+        gap: 1rem;
+        flex-wrap: wrap;
+        margin-bottom: 1.5rem;
+    }
+    
+    .kpi-card {
+        background: linear-gradient(145deg, #ffffff 0%, #f8fafc 100%);
+        border-radius: 16px;
+        padding: 1.5rem;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+        border: 1px solid #e2e8f0;
+        flex: 1;
+        min-width: 200px;
+        transition: all 0.3s ease;
+        position: relative;
+        overflow: hidden;
+    }
+    
+    .kpi-card:hover {
+        transform: translateY(-4px);
+        box-shadow: 0 8px 30px rgba(0, 0, 0, 0.12);
+    }
+    
+    .kpi-card::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 4px;
+        background: linear-gradient(90deg, #3b82f6, #8b5cf6);
+    }
+    
+    .kpi-card.receitas::before {
+        background: linear-gradient(90deg, #10b981, #34d399);
+    }
+    
+    .kpi-card.despesas::before {
+        background: linear-gradient(90deg, #ef4444, #f87171);
+    }
+    
+    .kpi-card.resultado::before {
+        background: linear-gradient(90deg, #3b82f6, #60a5fa);
+    }
+    
+    .kpi-card.shows::before {
+        background: linear-gradient(90deg, #8b5cf6, #a78bfa);
+    }
+    
+    .kpi-card.ticket::before {
+        background: linear-gradient(90deg, #f59e0b, #fbbf24);
+    }
+    
+    .kpi-icon {
+        font-size: 2rem;
+        margin-bottom: 0.5rem;
+    }
+    
+    .kpi-label {
+        font-size: 0.85rem;
+        font-weight: 500;
+        color: #64748b;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        margin-bottom: 0.5rem;
+    }
+    
+    .kpi-value {
+        font-size: 1.75rem;
+        font-weight: 700;
+        color: #1e293b;
+        line-height: 1.2;
+    }
+    
+    .kpi-delta {
+        font-size: 0.85rem;
+        font-weight: 600;
+        margin-top: 0.5rem;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.25rem;
+        padding: 0.25rem 0.5rem;
+        border-radius: 6px;
+    }
+    
+    .kpi-delta.positive {
+        color: #059669;
+        background: #d1fae5;
+    }
+    
+    .kpi-delta.negative {
+        color: #dc2626;
+        background: #fee2e2;
+    }
+    
+    /* Section Headers */
+    .section-header {
+        font-size: 1.25rem;
+        font-weight: 600;
+        color: #1e3a5f;
+        margin: 2rem 0 1rem 0;
+        padding-bottom: 0.5rem;
+        border-bottom: 2px solid #e2e8f0;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+    
+    /* Card Container */
+    .card-container {
+        background: #ffffff;
+        border-radius: 16px;
+        padding: 1.5rem;
+        box-shadow: 0 2px 12px rgba(0, 0, 0, 0.06);
+        border: 1px solid #e2e8f0;
+        margin-bottom: 1rem;
+    }
+    
+    /* Sidebar Styling */
+    [data-testid="stSidebar"] {
+        background: linear-gradient(180deg, #1e3a5f 0%, #2d5a87 100%);
+    }
+    
+    [data-testid="stSidebar"] .stMarkdown {
+        color: #ffffff;
+    }
+    
+    [data-testid="stSidebar"] .stRadio label {
+        color: #e2e8f0 !important;
+    }
+    
+    [data-testid="stSidebar"] hr {
+        border-color: rgba(255, 255, 255, 0.2);
+    }
+    
+    /* Metrics Styling */
+    [data-testid="stMetric"] {
+        background: linear-gradient(145deg, #ffffff 0%, #f8fafc 100%);
+        border-radius: 12px;
+        padding: 1rem;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+        border: 1px solid #e2e8f0;
+    }
+    
+    [data-testid="stMetricLabel"] {
+        font-weight: 600;
+        color: #475569;
+    }
+    
+    [data-testid="stMetricValue"] {
+        font-weight: 700;
+        color: #1e293b;
+    }
+    
+    /* Tabs Styling */
+    .stTabs [data-baseweb="tab-list"] {
+        gap: 0.5rem;
+        background: #f1f5f9;
+        padding: 0.5rem;
+        border-radius: 12px;
+    }
+    
+    .stTabs [data-baseweb="tab"] {
+        border-radius: 8px;
+        font-weight: 500;
+        color: #64748b;
+        padding: 0.75rem 1.5rem;
+    }
+    
+    .stTabs [aria-selected="true"] {
+        background: #ffffff;
+        color: #1e3a5f;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    }
+    
+    /* Button Styling */
+    .stButton > button {
+        border-radius: 10px;
+        font-weight: 600;
+        padding: 0.75rem 1.5rem;
+        transition: all 0.2s ease;
+    }
+    
+    .stButton > button[kind="primary"] {
+        background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+        border: none;
+    }
+    
+    .stButton > button[kind="primary"]:hover {
+        background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(37, 99, 235, 0.4);
+    }
+    
+    /* DataFrames */
+    .stDataFrame {
+        border-radius: 12px;
+        overflow: hidden;
+    }
+    
+    /* Form Styling */
+    .stForm {
+        background: #ffffff;
+        border-radius: 16px;
+        padding: 1.5rem;
+        box-shadow: 0 2px 12px rgba(0, 0, 0, 0.06);
+        border: 1px solid #e2e8f0;
+    }
+    
+    /* Input Fields */
+    .stTextInput > div > div > input,
+    .stTextArea > div > div > textarea,
+    .stSelectbox > div > div > div,
+    .stNumberInput > div > div > input {
+        border-radius: 10px;
+        border: 2px solid #e2e8f0;
+        transition: all 0.2s ease;
+    }
+    
+    .stTextInput > div > div > input:focus,
+    .stTextArea > div > div > textarea:focus {
+        border-color: #3b82f6;
+        box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+    }
+    
+    /* Alert Boxes */
+    .stAlert {
+        border-radius: 12px;
+        border: none;
+    }
+    
+    /* Download Button */
+    .stDownloadButton > button {
+        border-radius: 10px;
+        font-weight: 600;
+    }
+    
+    /* Expander */
+    .streamlit-expanderHeader {
+        font-weight: 600;
+        color: #1e3a5f;
+        border-radius: 10px;
+    }
+    
+    /* Progress indicators */
+    .stProgress > div > div > div {
+        background: linear-gradient(90deg, #3b82f6, #8b5cf6);
+    }
+    
+    /* Custom scrollbar */
+    ::-webkit-scrollbar {
+        width: 8px;
+        height: 8px;
+    }
+    
+    ::-webkit-scrollbar-track {
+        background: #f1f5f9;
+        border-radius: 4px;
+    }
+    
+    ::-webkit-scrollbar-thumb {
+        background: #cbd5e1;
+        border-radius: 4px;
+    }
+    
+    ::-webkit-scrollbar-thumb:hover {
+        background: #94a3b8;
+    }
+    
+    /* Period Badge */
+    .period-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        background: linear-gradient(135deg, #1e3a5f 0%, #2d5a87 100%);
+        color: white;
+        padding: 0.5rem 1rem;
+        border-radius: 20px;
+        font-size: 0.9rem;
+        font-weight: 500;
+        margin-bottom: 1rem;
+    }
+    
+    /* Quick Stats Row */
+    .quick-stats {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+        gap: 1rem;
+        margin-bottom: 1.5rem;
+    }
+    
+    .stat-item {
+        background: #f8fafc;
+        border-radius: 12px;
+        padding: 1rem;
+        text-align: center;
+        border: 1px solid #e2e8f0;
+    }
+    
+    .stat-item .value {
+        font-size: 1.5rem;
+        font-weight: 700;
+        color: #1e293b;
+    }
+    
+    .stat-item .label {
+        font-size: 0.8rem;
+        color: #64748b;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
 </style>
 """, unsafe_allow_html=True)
+
+# Helper function for KPI cards HTML
+def render_kpi_cards(kpis: list) -> str:
+    """
+    Render KPI cards with modern styling.
+    kpis: list of dicts with keys: icon, label, value, delta (optional), delta_type (optional), card_type
+    """
+    cards_html = '<div class="kpi-container">'
+    for kpi in kpis:
+        card_type = kpi.get('card_type', '')
+        delta_html = ''
+        if kpi.get('delta'):
+            delta_class = 'positive' if kpi.get('delta_type') == 'positive' else 'negative'
+            delta_icon = '&#9650;' if kpi.get('delta_type') == 'positive' else '&#9660;'
+            delta_html = f'<div class="kpi-delta {delta_class}">{delta_icon} {kpi["delta"]}</div>'
+        
+        cards_html += f'''
+        <div class="kpi-card {card_type}">
+            <div class="kpi-icon">{kpi.get('icon', '')}</div>
+            <div class="kpi-label">{kpi.get('label', '')}</div>
+            <div class="kpi-value">{kpi.get('value', '')}</div>
+            {delta_html}
+        </div>
+        '''
+    cards_html += '</div>'
+    return cards_html
 
 # =============================================================================
 # HELPERS
@@ -437,51 +794,176 @@ if page == "📊 Dashboard":
             cresc_despesas = ((despesas - despesas_ant) / despesas_ant * 100) if despesas_ant > 0 else None
             cresc_resultado = ((resultado - resultado_ant) / abs(resultado_ant) * 100) if resultado_ant != 0 else None
 
-            st.markdown(f"### 📊 Visão Geral: {get_periodo_descricao(dt_min, dt_max)}")
+            # Period badge
+            st.markdown(f'<div class="period-badge">📅 {get_periodo_descricao(dt_min, dt_max)}</div>', unsafe_allow_html=True)
             
-            # Primeira linha de métricas principais
-            c1, c2, c3, c4, c5 = st.columns(5)
-            c1.metric("💰 Receitas", brl(receitas), delta=f"{cresc_receitas:+.1f}%" if cresc_receitas is not None else None)
-            c2.metric("💸 Despesas", brl(despesas), delta=f"{cresc_despesas:+.1f}%" if cresc_despesas is not None else None, delta_color="inverse")
-            c3.metric("📈 Resultado", brl(resultado), delta=f"{cresc_resultado:+.1f}%" if cresc_resultado is not None else None)
-            c4.metric("🎤 Shows", int(qtd_shows))
-            c5.metric("🎫 Ticket Médio", brl(ticket_medio) if qtd_shows > 0 else "N/A")
+            # Main KPI Cards - Modern Corporate Style
+            main_kpis = [
+                {
+                    'icon': '💰',
+                    'label': 'Receitas',
+                    'value': brl(receitas),
+                    'delta': f"{cresc_receitas:+.1f}%" if cresc_receitas is not None else None,
+                    'delta_type': 'positive' if cresc_receitas and cresc_receitas > 0 else 'negative',
+                    'card_type': 'receitas'
+                },
+                {
+                    'icon': '💸',
+                    'label': 'Despesas',
+                    'value': brl(despesas),
+                    'delta': f"{cresc_despesas:+.1f}%" if cresc_despesas is not None else None,
+                    'delta_type': 'negative' if cresc_despesas and cresc_despesas > 0 else 'positive',
+                    'card_type': 'despesas'
+                },
+                {
+                    'icon': '📈',
+                    'label': 'Resultado',
+                    'value': brl(resultado),
+                    'delta': f"{cresc_resultado:+.1f}%" if cresc_resultado is not None else None,
+                    'delta_type': 'positive' if cresc_resultado and cresc_resultado > 0 else 'negative',
+                    'card_type': 'resultado'
+                },
+                {
+                    'icon': '🎤',
+                    'label': 'Shows',
+                    'value': str(int(qtd_shows)),
+                    'card_type': 'shows'
+                },
+                {
+                    'icon': '🎫',
+                    'label': 'Ticket Médio',
+                    'value': brl(ticket_medio) if qtd_shows > 0 else "N/A",
+                    'card_type': 'ticket'
+                }
+            ]
+            st.markdown(render_kpi_cards(main_kpis), unsafe_allow_html=True)
             
-            # Segunda linha de indicadores avançados
-            st.markdown("#### 📈 Indicadores de Performance")
-            c6, c7, c8, c9 = st.columns(4)
-            c6.metric("📊 Margem de Lucro", f"{margem_lucro:.1f}%", help="Resultado / Receitas x 100")
-            c7.metric("💹 ROI", f"{roi:.1f}%", help="Retorno sobre Investimento: Resultado / Despesas x 100")
-            c8.metric("📋 Transações", qtd_transacoes)
-            c9.metric("💵 Média/Transação", brl(media_transacao))
+            # Secondary KPI Cards - Performance Indicators
+            st.markdown('<div class="section-header">📈 Indicadores de Performance</div>', unsafe_allow_html=True)
+            perf_kpis = [
+                {
+                    'icon': '📊',
+                    'label': 'Margem de Lucro',
+                    'value': f"{margem_lucro:.1f}%",
+                    'card_type': ''
+                },
+                {
+                    'icon': '💹',
+                    'label': 'ROI',
+                    'value': f"{roi:.1f}%",
+                    'card_type': ''
+                },
+                {
+                    'icon': '📋',
+                    'label': 'Transações',
+                    'value': str(qtd_transacoes),
+                    'card_type': ''
+                },
+                {
+                    'icon': '💵',
+                    'label': 'Média/Transação',
+                    'value': brl(media_transacao),
+                    'card_type': ''
+                }
+            ]
+            st.markdown(render_kpi_cards(perf_kpis), unsafe_allow_html=True)
 
             st.markdown("---")
             tab1, tab2, tab3, tab4, tab5, tab6 = st.tabs([
                 "📊 Visão Geral", "💰 Receitas vs Despesas", "📈 Evolução", "🏷️ Categorias", "🎤 Análise de Shows", "📉 Analytics Avançados"
             ])
 
+            # Modern chart color palette
+            colors_corporate = {
+                'primary': '#1e3a5f',
+                'secondary': '#2d5a87',
+                'success': '#10b981',
+                'danger': '#ef4444',
+                'warning': '#f59e0b',
+                'info': '#3b82f6',
+                'purple': '#8b5cf6',
+                'gradient': ['#1e3a5f', '#2d5a87', '#3b82f6', '#60a5fa', '#93c5fd']
+            }
+            
+            chart_layout = dict(
+                font=dict(family="Inter, sans-serif", size=12, color="#1e293b"),
+                paper_bgcolor='rgba(0,0,0,0)',
+                plot_bgcolor='rgba(0,0,0,0)',
+                margin=dict(l=20, r=20, t=60, b=20),
+                title_font=dict(size=16, color='#1e3a5f', family="Inter, sans-serif"),
+                legend=dict(
+                    bgcolor='rgba(255,255,255,0.8)',
+                    bordercolor='#e2e8f0',
+                    borderwidth=1,
+                    font=dict(size=11)
+                ),
+                hoverlabel=dict(
+                    bgcolor='white',
+                    font_size=12,
+                    font_family="Inter, sans-serif"
+                )
+            )
+
             with tab1:
                 col_a, col_b = st.columns(2)
                 with col_a:
+                    st.markdown('<div class="card-container">', unsafe_allow_html=True)
                     fig_pizza = go.Figure(data=[go.Pie(
                         labels=["Receitas", "Despesas"],
                         values=[max(receitas, 0), max(despesas, 0)],
-                        hole=.4
+                        hole=.5,
+                        marker=dict(colors=[colors_corporate['success'], colors_corporate['danger']]),
+                        textinfo='label+percent',
+                        textfont=dict(size=13, family="Inter, sans-serif"),
+                        hovertemplate="<b>%{label}</b><br>Valor: R$ %{value:,.2f}<br>Percentual: %{percent}<extra></extra>"
                     )])
-                    fig_pizza.update_layout(title="Distribuição: Receitas vs Despesas", height=400)
+                    fig_pizza.update_layout(
+                        **chart_layout,
+                        title=dict(text="Distribuição: Receitas vs Despesas", x=0.5, xanchor='center'),
+                        height=420,
+                        showlegend=True,
+                        legend=dict(orientation='h', yanchor='bottom', y=-0.1, xanchor='center', x=0.5)
+                    )
+                    # Add center annotation
+                    fig_pizza.add_annotation(
+                        text=f"<b>Total</b><br>{brl(receitas + despesas)}",
+                        x=0.5, y=0.5, font_size=14, showarrow=False,
+                        font=dict(family="Inter, sans-serif", color="#1e293b")
+                    )
                     st.plotly_chart(fig_pizza, use_container_width=True)
+                    st.markdown('</div>', unsafe_allow_html=True)
+                    
                 with col_b:
                     top_desp = dfp.loc[dfp["valor"] < 0].copy()
                     if not top_desp.empty:
+                        st.markdown('<div class="card-container">', unsafe_allow_html=True)
                         top_desp["categoria"] = top_desp["categoria"].replace("", "Sem categoria")
                         top_cat = top_desp.groupby("categoria")["valor"].sum().abs().sort_values(ascending=False).head(5)
-                        fig_top = px.bar(
-                            x=top_cat.values, y=top_cat.index, orientation='h',
-                            title="Top 5 Categorias de Despesa", labels={'x':'Valor (R$)','y':'Categoria'},
-                            color=top_cat.values, color_continuous_scale='Reds'
+                        
+                        fig_top = go.Figure(data=[go.Bar(
+                            x=top_cat.values,
+                            y=top_cat.index,
+                            orientation='h',
+                            marker=dict(
+                                color=top_cat.values,
+                                colorscale=[[0, '#fecaca'], [0.5, '#f87171'], [1, '#dc2626']],
+                                line=dict(color='#b91c1c', width=1)
+                            ),
+                            text=[brl(v) for v in top_cat.values],
+                            textposition='outside',
+                            textfont=dict(size=11, family="Inter, sans-serif"),
+                            hovertemplate="<b>%{y}</b><br>Valor: %{text}<extra></extra>"
+                        )])
+                        fig_top.update_layout(
+                            **chart_layout,
+                            title=dict(text="Top 5 Categorias de Despesa", x=0.5, xanchor='center'),
+                            height=420,
+                            showlegend=False,
+                            xaxis=dict(showgrid=True, gridcolor='#f1f5f9', title=''),
+                            yaxis=dict(showgrid=False, title='')
                         )
-                        fig_top.update_layout(height=400, showlegend=False)
                         st.plotly_chart(fig_top, use_container_width=True)
+                        st.markdown('</div>', unsafe_allow_html=True)
                     else:
                         st.info("Sem despesas no período")
 
@@ -494,14 +976,40 @@ if page == "📊 Dashboard":
                 ).reset_index()
 
                 if not monthly.empty:
+                    st.markdown('<div class="card-container">', unsafe_allow_html=True)
                     fig = go.Figure()
-                    fig.add_bar(x=monthly["ano_mes"], y=monthly["Receitas"], name="Receitas")
-                    fig.add_bar(x=monthly["ano_mes"], y=monthly["Despesas"], name="Despesas")
-                    fig.update_layout(title="Receitas vs Despesas por Mês", barmode='group',
-                                      xaxis_title="Mês", yaxis_title="Valor (R$)", height=500, hovermode='x unified')
-                    st.plotly_chart(fig, use_container_width=True)
-
+                    fig.add_bar(
+                        x=monthly["ano_mes"], y=monthly["Receitas"], name="Receitas",
+                        marker=dict(color=colors_corporate['success'], line=dict(color='#059669', width=1)),
+                        hovertemplate="<b>%{x}</b><br>Receitas: R$ %{y:,.2f}<extra></extra>"
+                    )
+                    fig.add_bar(
+                        x=monthly["ano_mes"], y=monthly["Despesas"], name="Despesas",
+                        marker=dict(color=colors_corporate['danger'], line=dict(color='#dc2626', width=1)),
+                        hovertemplate="<b>%{x}</b><br>Despesas: R$ %{y:,.2f}<extra></extra>"
+                    )
+                    # Add result line
                     monthly["Resultado"] = monthly["Receitas"] - monthly["Despesas"]
+                    fig.add_trace(go.Scatter(
+                        x=monthly["ano_mes"], y=monthly["Resultado"],
+                        mode='lines+markers', name='Resultado',
+                        line=dict(color=colors_corporate['info'], width=3),
+                        marker=dict(size=8, symbol='diamond'),
+                        hovertemplate="<b>%{x}</b><br>Resultado: R$ %{y:,.2f}<extra></extra>"
+                    ))
+                    fig.update_layout(
+                        **chart_layout,
+                        title=dict(text="Receitas vs Despesas por Mês", x=0.5, xanchor='center'),
+                        barmode='group',
+                        xaxis=dict(title='Mês', showgrid=False),
+                        yaxis=dict(title='Valor (R$)', showgrid=True, gridcolor='#f1f5f9'),
+                        height=500,
+                        hovermode='x unified',
+                        legend=dict(orientation='h', yanchor='bottom', y=1.02, xanchor='center', x=0.5)
+                    )
+                    st.plotly_chart(fig, use_container_width=True)
+                    st.markdown('</div>', unsafe_allow_html=True)
+
                     monthly["Margem (%)"] = np.where(
                         monthly["Receitas"] > 0,
                         ((monthly["Resultado"]) / monthly["Receitas"] * 100).round(1),
@@ -512,7 +1020,7 @@ if page == "📊 Dashboard":
                         Despesas_fmt=monthly["Despesas"].map(brl),
                         Resultado_fmt=monthly["Resultado"].map(brl)
                     )
-                    st.markdown("#### 📋 Resumo Mensal")
+                    st.markdown('<div class="section-header">📋 Resumo Mensal</div>', unsafe_allow_html=True)
                     df_show = dedupe_columns(
                         view_month[["ano_mes","Receitas_fmt","Despesas_fmt","Resultado_fmt","Margem (%)"]]
                             .rename(columns={"ano_mes":"Mês","Receitas_fmt":"Receitas","Despesas_fmt":"Despesas","Resultado_fmt":"Resultado"})
@@ -525,24 +1033,58 @@ if page == "📊 Dashboard":
                     st.info("Sem dados diários no período.")
                 else:
                     dd["saldo_acumulado"] = dd["saldo_dia"].cumsum()
+                    st.markdown('<div class="card-container">', unsafe_allow_html=True)
                     fig_evol = go.Figure()
+                    
+                    # Add area fill with gradient effect
                     fig_evol.add_trace(go.Scatter(
                         x=dd["data"], y=dd["saldo_acumulado"],
-                        mode='lines+markers', name='Saldo Acumulado',
-                        fill='tozeroy', fillcolor='rgba(52, 152, 219, 0.2)'
+                        mode='lines', name='Saldo Acumulado',
+                        fill='tozeroy',
+                        fillcolor='rgba(59, 130, 246, 0.15)',
+                        line=dict(color=colors_corporate['info'], width=3),
+                        hovertemplate="<b>%{x}</b><br>Saldo: R$ %{y:,.2f}<extra></extra>"
                     ))
-                    fig_evol.update_layout(title="Evolução do Saldo Acumulado",
-                                           xaxis_title="Data", yaxis_title="Saldo (R$)", height=500, hovermode='x unified')
+                    
+                    # Add markers on top
+                    fig_evol.add_trace(go.Scatter(
+                        x=dd["data"], y=dd["saldo_acumulado"],
+                        mode='markers', name='',
+                        marker=dict(color=colors_corporate['info'], size=6, line=dict(color='white', width=2)),
+                        showlegend=False,
+                        hoverinfo='skip'
+                    ))
+                    
+                    fig_evol.update_layout(
+                        **chart_layout,
+                        title=dict(text="Evolução do Saldo Acumulado", x=0.5, xanchor='center'),
+                        xaxis=dict(title='Data', showgrid=False),
+                        yaxis=dict(title='Saldo (R$)', showgrid=True, gridcolor='#f1f5f9'),
+                        height=500,
+                        hovermode='x unified',
+                        showlegend=False
+                    )
                     st.plotly_chart(fig_evol, use_container_width=True)
+                    st.markdown('</div>', unsafe_allow_html=True)
+                    
                     saldo_ini = float(dd["saldo_acumulado"].iloc[0]) if len(dd) else 0.0
                     saldo_fim = float(dd["saldo_acumulado"].iloc[-1]) if len(dd) else 0.0
                     variacao = saldo_fim - saldo_ini
                     media_dia = float(dd["saldo_dia"].mean() if len(dd) else 0.0)
-                    col_e1, col_e2, col_e3, col_e4 = st.columns(4)
-                    col_e1.metric("Saldo Inicial", brl(saldo_ini))
-                    col_e2.metric("Saldo Final", brl(saldo_fim))
-                    col_e3.metric("Variação", brl(variacao), delta=f"{(variacao/abs(saldo_ini)*100):.1f}%" if saldo_ini else None)
-                    col_e4.metric("Média Diária", brl(media_dia))
+                    
+                    # KPI cards for evolution metrics
+                    evol_kpis = [
+                        {'icon': '📍', 'label': 'Saldo Inicial', 'value': brl(saldo_ini), 'card_type': ''},
+                        {'icon': '🎯', 'label': 'Saldo Final', 'value': brl(saldo_fim), 'card_type': ''},
+                        {
+                            'icon': '📊', 'label': 'Variação', 'value': brl(variacao),
+                            'delta': f"{(variacao/abs(saldo_ini)*100):.1f}%" if saldo_ini else None,
+                            'delta_type': 'positive' if variacao > 0 else 'negative',
+                            'card_type': ''
+                        },
+                        {'icon': '📈', 'label': 'Média Diária', 'value': brl(media_dia), 'card_type': ''}
+                    ]
+                    st.markdown(render_kpi_cards(evol_kpis), unsafe_allow_html=True)
 
             with tab4:
                 cat = dfp.copy()
@@ -551,36 +1093,61 @@ if page == "📊 Dashboard":
                 if cat_agg.empty:
                     st.info("Sem categorias no período.")
                 else:
-                    fig_cat = px.bar(
-                        cat_agg, x="valor", y="categoria", orientation='h',
-                        title="Saldo por Categoria", labels={'valor':'Saldo (R$)','categoria':'Categoria'},
-                        color='valor', color_continuous_scale=['red','yellow','green']
+                    st.markdown('<div class="card-container">', unsafe_allow_html=True)
+                    
+                    # Create color based on positive/negative values
+                    colors_cat = [colors_corporate['success'] if v >= 0 else colors_corporate['danger'] for v in cat_agg['valor']]
+                    
+                    fig_cat = go.Figure(data=[go.Bar(
+                        x=cat_agg['valor'],
+                        y=cat_agg['categoria'],
+                        orientation='h',
+                        marker=dict(
+                            color=colors_cat,
+                            line=dict(color='rgba(0,0,0,0.1)', width=1)
+                        ),
+                        text=[brl(v) for v in cat_agg['valor']],
+                        textposition='outside',
+                        textfont=dict(size=11, family="Inter, sans-serif"),
+                        hovertemplate="<b>%{y}</b><br>Saldo: %{text}<extra></extra>"
+                    )])
+                    
+                    fig_cat.update_layout(
+                        **chart_layout,
+                        title=dict(text="Saldo por Categoria", x=0.5, xanchor='center'),
+                        height=max(400, len(cat_agg) * 40),
+                        xaxis=dict(title='Saldo (R$)', showgrid=True, gridcolor='#f1f5f9', zeroline=True, zerolinecolor='#94a3b8', zerolinewidth=2),
+                        yaxis=dict(title='', showgrid=False)
                     )
-                    fig_cat.update_layout(height=600)
                     st.plotly_chart(fig_cat, use_container_width=True)
+                    st.markdown('</div>', unsafe_allow_html=True)
 
                     cat_det = cat.groupby("categoria").agg(Total=("valor","sum"), Qtd=("valor","count"), Média=("valor","mean")).reset_index()
                     cat_det["Total"] = cat_det["Total"].map(brl)
                     cat_det["Média"] = cat_det["Média"].map(brl)
                     df_show = dedupe_columns(cat_det.rename(columns={"categoria":"Categoria"}).sort_values("Qtd", ascending=False))
-                    st.markdown("#### 📋 Detalhes por Categoria")
+                    st.markdown('<div class="section-header">📋 Detalhes por Categoria</div>', unsafe_allow_html=True)
                     st.dataframe(df_show, use_container_width=True, hide_index=True)
 
             with tab5:
                 if qtd_shows > 0:
-                    col_s1, col_s2 = st.columns(2)
-                    col_s1.metric("Total de Shows", int(qtd_shows))
-                    col_s1.metric("Receita Total de Shows", brl(
-                        dfp.loc[
-                            (_only_shows_mask(dfp)) &
-                            (
-                                (dfp.get("tipo", "").astype(str).str.strip().str.casefold() == "entrada")
-                                | (dfp["valor"] > 0)
-                            ),
-                            "valor"
-                        ].sum()
-                    ))
-                    col_s1.metric("Ticket Médio por Show", brl(ticket_medio))
+                    # Calculate show revenue
+                    receita_shows = dfp.loc[
+                        (_only_shows_mask(dfp)) &
+                        (
+                            (dfp.get("tipo", "").astype(str).str.strip().str.casefold() == "entrada")
+                            | (dfp["valor"] > 0)
+                        ),
+                        "valor"
+                    ].sum()
+                    
+                    # KPI cards for shows
+                    shows_kpis = [
+                        {'icon': '🎤', 'label': 'Total de Shows', 'value': str(int(qtd_shows)), 'card_type': 'shows'},
+                        {'icon': '💰', 'label': 'Receita Total', 'value': brl(receita_shows), 'card_type': 'receitas'},
+                        {'icon': '🎫', 'label': 'Ticket Médio', 'value': brl(ticket_medio), 'card_type': 'ticket'}
+                    ]
+                    st.markdown(render_kpi_cards(shows_kpis), unsafe_allow_html=True)
 
                     # Lista de eventos (apenas categoria Shows, receitas)
                     base_shows = dfp.loc[_only_shows_mask(dfp)].copy()
@@ -599,40 +1166,88 @@ if page == "📊 Dashboard":
                             .agg(valor=("valor", "sum"), data=("data", "min"))
                         )
                         if not eventos_agg.empty:
+                            # Create bar chart for shows
+                            st.markdown('<div class="card-container">', unsafe_allow_html=True)
+                            eventos_sorted = eventos_agg.sort_values("valor", ascending=True).tail(10)
+                            fig_shows = go.Figure(data=[go.Bar(
+                                x=eventos_sorted['valor'],
+                                y=eventos_sorted['evento'],
+                                orientation='h',
+                                marker=dict(
+                                    color=colors_corporate['purple'],
+                                    line=dict(color='#7c3aed', width=1)
+                                ),
+                                text=[brl(v) for v in eventos_sorted['valor']],
+                                textposition='outside',
+                                textfont=dict(size=11, family="Inter, sans-serif"),
+                                hovertemplate="<b>%{y}</b><br>Receita: %{text}<extra></extra>"
+                            )])
+                            fig_shows.update_layout(
+                                **chart_layout,
+                                title=dict(text="Top 10 Shows por Receita", x=0.5, xanchor='center'),
+                                height=max(350, len(eventos_sorted) * 40),
+                                xaxis=dict(title='Receita (R$)', showgrid=True, gridcolor='#f1f5f9'),
+                                yaxis=dict(title='', showgrid=False)
+                            )
+                            st.plotly_chart(fig_shows, use_container_width=True)
+                            st.markdown('</div>', unsafe_allow_html=True)
+                            
                             eventos_agg["Data"] = pd.to_datetime(eventos_agg["data"]).dt.strftime("%d/%m/%Y")
                             eventos_agg["Receita"] = eventos_agg["valor"].map(brl)
                             df_show = eventos_agg.sort_values("data", ascending=False)[["evento", "Data", "Receita"]]
                             df_show = df_show.rename(columns={"evento": "Evento"})
-                            st.markdown("#### 🎤 Lista de Shows/Eventos (apenas categoria 'Shows')")
+                            st.markdown('<div class="section-header">🎤 Lista de Shows/Eventos</div>', unsafe_allow_html=True)
                             st.dataframe(df_show, use_container_width=True, hide_index=True)
                     else:
                         st.info("Nenhum show registrado no período selecionado.")
+                else:
+                    st.info("Nenhum show encontrado no período selecionado.")
 
             with tab6:
-                st.markdown("### 📉 Analytics Avançados")
+                st.markdown('<div class="section-header">📉 Analytics Avançados</div>', unsafe_allow_html=True)
                 
                 # Seção 1: Comparação com Período Anterior
-                st.markdown("#### 📊 Comparação com Período Anterior")
+                st.markdown('<div class="card-container">', unsafe_allow_html=True)
+                st.markdown("**📊 Comparação com Período Anterior**")
+                
                 col_comp1, col_comp2 = st.columns(2)
                 
                 with col_comp1:
-                    st.markdown("**Período Atual**")
-                    st.write(f"📅 {get_periodo_descricao(dt_min, dt_max)}")
-                    st.metric("Receitas", brl(receitas))
-                    st.metric("Despesas", brl(despesas))
-                    st.metric("Resultado", brl(resultado))
+                    st.markdown(f'<div class="period-badge">📅 Período Atual: {get_periodo_descricao(dt_min, dt_max)}</div>', unsafe_allow_html=True)
+                    atual_kpis = [
+                        {'icon': '💰', 'label': 'Receitas', 'value': brl(receitas), 'card_type': 'receitas'},
+                        {'icon': '💸', 'label': 'Despesas', 'value': brl(despesas), 'card_type': 'despesas'},
+                        {'icon': '📈', 'label': 'Resultado', 'value': brl(resultado), 'card_type': 'resultado'}
+                    ]
+                    st.markdown(render_kpi_cards(atual_kpis), unsafe_allow_html=True)
                 
                 with col_comp2:
-                    st.markdown("**Período Anterior**")
-                    st.write(f"📅 {get_periodo_descricao(dt_ant_min, dt_ant_max)}")
-                    st.metric("Receitas", brl(receitas_ant), delta=f"{cresc_receitas:+.1f}%" if cresc_receitas is not None else None)
-                    st.metric("Despesas", brl(despesas_ant), delta=f"{cresc_despesas:+.1f}%" if cresc_despesas is not None else None, delta_color="inverse")
-                    st.metric("Resultado", brl(resultado_ant), delta=f"{cresc_resultado:+.1f}%" if cresc_resultado is not None else None)
-                
-                st.markdown("---")
+                    st.markdown(f'<div class="period-badge">📅 Período Anterior: {get_periodo_descricao(dt_ant_min, dt_ant_max)}</div>', unsafe_allow_html=True)
+                    ant_kpis = [
+                        {
+                            'icon': '💰', 'label': 'Receitas', 'value': brl(receitas_ant),
+                            'delta': f"{cresc_receitas:+.1f}%" if cresc_receitas is not None else None,
+                            'delta_type': 'positive' if cresc_receitas and cresc_receitas > 0 else 'negative',
+                            'card_type': ''
+                        },
+                        {
+                            'icon': '💸', 'label': 'Despesas', 'value': brl(despesas_ant),
+                            'delta': f"{cresc_despesas:+.1f}%" if cresc_despesas is not None else None,
+                            'delta_type': 'negative' if cresc_despesas and cresc_despesas > 0 else 'positive',
+                            'card_type': ''
+                        },
+                        {
+                            'icon': '📈', 'label': 'Resultado', 'value': brl(resultado_ant),
+                            'delta': f"{cresc_resultado:+.1f}%" if cresc_resultado is not None else None,
+                            'delta_type': 'positive' if cresc_resultado and cresc_resultado > 0 else 'negative',
+                            'card_type': ''
+                        }
+                    ]
+                    st.markdown(render_kpi_cards(ant_kpis), unsafe_allow_html=True)
+                st.markdown('</div>', unsafe_allow_html=True)
                 
                 # Seção 2: Tendência do Ticket Médio por Show
-                st.markdown("#### 🎫 Tendência do Ticket Médio por Show")
+                st.markdown('<div class="section-header">🎫 Tendência do Ticket Médio por Show</div>', unsafe_allow_html=True)
                 base_shows_trend = df_com_data.loc[_only_shows_mask(df_com_data)].copy()
                 if not base_shows_trend.empty:
                     base_shows_trend["ano_mes"] = base_shows_trend["data"].dt.to_period("M").astype(str)
@@ -648,19 +1263,27 @@ if page == "📊 Dashboard":
                     
                     if ticket_por_mes:
                         df_ticket = pd.DataFrame(ticket_por_mes)
+                        st.markdown('<div class="card-container">', unsafe_allow_html=True)
                         fig_ticket = go.Figure()
                         fig_ticket.add_trace(go.Scatter(
                             x=df_ticket["Mês"], y=df_ticket["Ticket Médio"],
                             mode='lines+markers', name='Ticket Médio',
-                            line=dict(color='#2ecc71', width=3),
-                            marker=dict(size=10)
+                            line=dict(color=colors_corporate['warning'], width=3),
+                            marker=dict(size=10, color=colors_corporate['warning'], line=dict(color='white', width=2)),
+                            fill='tozeroy',
+                            fillcolor='rgba(245, 158, 11, 0.1)',
+                            hovertemplate="<b>%{x}</b><br>Ticket Médio: R$ %{y:,.2f}<extra></extra>"
                         ))
                         fig_ticket.update_layout(
-                            title="Evolução do Ticket Médio por Show",
-                            xaxis_title="Mês", yaxis_title="Ticket Médio (R$)",
-                            height=400, hovermode='x unified'
+                            **chart_layout,
+                            title=dict(text="Evolução do Ticket Médio por Show", x=0.5, xanchor='center'),
+                            xaxis=dict(title='Mês', showgrid=False),
+                            yaxis=dict(title='Ticket Médio (R$)', showgrid=True, gridcolor='#f1f5f9'),
+                            height=400, hovermode='x unified',
+                            showlegend=False
                         )
                         st.plotly_chart(fig_ticket, use_container_width=True)
+                        st.markdown('</div>', unsafe_allow_html=True)
                         
                         # Tabela de detalhes
                         df_ticket["Ticket Médio Fmt"] = df_ticket["Ticket Médio"].map(brl)
@@ -673,10 +1296,8 @@ if page == "📊 Dashboard":
                 else:
                     st.info("Nenhum show encontrado para análise de tendência.")
                 
-                st.markdown("---")
-                
                 # Seção 3: Projeção de Fluxo de Caixa
-                st.markdown("#### 💰 Projeção de Fluxo de Caixa (próximos 3 meses)")
+                st.markdown('<div class="section-header">💰 Projeção de Fluxo de Caixa (próximos 3 meses)</div>', unsafe_allow_html=True)
                 
                 # Calcular médias mensais para projeção
                 monthly_data = df_com_data.groupby(df_com_data["data"].dt.to_period("M")).agg(
@@ -711,31 +1332,41 @@ if page == "📊 Dashboard":
                     df_proj = pd.DataFrame(projecao)
                     
                     # Gráfico de projeção
+                    st.markdown('<div class="card-container">', unsafe_allow_html=True)
                     fig_proj = go.Figure()
                     fig_proj.add_trace(go.Bar(
                         x=df_proj["Mês"], y=df_proj["Receitas Proj."],
-                        name="Receitas Projetadas", marker_color='#2ecc71'
+                        name="Receitas Projetadas",
+                        marker=dict(color=colors_corporate['success'], line=dict(color='#059669', width=1)),
+                        hovertemplate="<b>%{x}</b><br>Receitas: R$ %{y:,.2f}<extra></extra>"
                     ))
                     fig_proj.add_trace(go.Bar(
                         x=df_proj["Mês"], y=df_proj["Despesas Proj."],
-                        name="Despesas Projetadas", marker_color='#e74c3c'
+                        name="Despesas Projetadas",
+                        marker=dict(color=colors_corporate['danger'], line=dict(color='#dc2626', width=1)),
+                        hovertemplate="<b>%{x}</b><br>Despesas: R$ %{y:,.2f}<extra></extra>"
                     ))
                     fig_proj.add_trace(go.Scatter(
                         x=df_proj["Mês"], y=df_proj["Saldo Acumulado"],
                         mode='lines+markers', name='Saldo Acumulado',
-                        line=dict(color='#3498db', width=3),
-                        yaxis='y2'
+                        line=dict(color=colors_corporate['info'], width=3),
+                        marker=dict(size=10, color=colors_corporate['info'], line=dict(color='white', width=2)),
+                        yaxis='y2',
+                        hovertemplate="<b>%{x}</b><br>Saldo: R$ %{y:,.2f}<extra></extra>"
                     ))
                     fig_proj.update_layout(
-                        title="Projeção Financeira (baseada na média dos últimos 3 meses)",
-                        xaxis_title="Mês",
-                        yaxis_title="Valor (R$)",
-                        yaxis2=dict(title="Saldo Acumulado (R$)", overlaying='y', side='right'),
+                        **chart_layout,
+                        title=dict(text="Projeção Financeira (baseada na média dos últimos 3 meses)", x=0.5, xanchor='center'),
+                        xaxis=dict(title='Mês', showgrid=False),
+                        yaxis=dict(title='Valor (R$)', showgrid=True, gridcolor='#f1f5f9'),
+                        yaxis2=dict(title="Saldo Acumulado (R$)", overlaying='y', side='right', showgrid=False),
                         barmode='group',
                         height=450,
-                        hovermode='x unified'
+                        hovermode='x unified',
+                        legend=dict(orientation='h', yanchor='bottom', y=1.02, xanchor='center', x=0.5)
                     )
                     st.plotly_chart(fig_proj, use_container_width=True)
+                    st.markdown('</div>', unsafe_allow_html=True)
                     
                     # Tabela de projeção
                     df_proj_display = df_proj.copy()
@@ -749,10 +1380,8 @@ if page == "📊 Dashboard":
                 else:
                     st.info("Dados históricos insuficientes para projeção. São necessários pelo menos 2 meses de dados.")
                 
-                st.markdown("---")
-                
                 # Seção 4: Análise de Sazonalidade
-                st.markdown("#### 📅 Análise de Sazonalidade")
+                st.markdown('<div class="section-header">📅 Análise de Sazonalidade</div>', unsafe_allow_html=True)
                 if len(df_com_data) > 0:
                     df_com_data_copy = df_com_data.copy()
                     df_com_data_copy["mes_nome"] = df_com_data_copy["data"].dt.month_name()
@@ -766,33 +1395,42 @@ if page == "📊 Dashboard":
                     
                     sazonalidade["resultado"] = sazonalidade["receitas"] - sazonalidade["despesas"]
                     
+                    st.markdown('<div class="card-container">', unsafe_allow_html=True)
                     fig_saz = go.Figure()
                     fig_saz.add_trace(go.Bar(
                         x=sazonalidade["mes_nome"], y=sazonalidade["receitas"],
-                        name="Receitas", marker_color='#2ecc71'
+                        name="Receitas",
+                        marker=dict(color=colors_corporate['success'], line=dict(color='#059669', width=1)),
+                        hovertemplate="<b>%{x}</b><br>Receitas: R$ %{y:,.2f}<extra></extra>"
                     ))
                     fig_saz.add_trace(go.Bar(
                         x=sazonalidade["mes_nome"], y=sazonalidade["despesas"],
-                        name="Despesas", marker_color='#e74c3c'
+                        name="Despesas",
+                        marker=dict(color=colors_corporate['danger'], line=dict(color='#dc2626', width=1)),
+                        hovertemplate="<b>%{x}</b><br>Despesas: R$ %{y:,.2f}<extra></extra>"
                     ))
                     fig_saz.update_layout(
-                        title="Receitas e Despesas por Mês do Ano (Sazonalidade)",
-                        xaxis_title="Mês",
-                        yaxis_title="Valor (R$)",
+                        **chart_layout,
+                        title=dict(text="Receitas e Despesas por Mês do Ano (Sazonalidade)", x=0.5, xanchor='center'),
+                        xaxis=dict(title='Mês', showgrid=False),
+                        yaxis=dict(title='Valor (R$)', showgrid=True, gridcolor='#f1f5f9'),
                         barmode='group',
-                        height=400
+                        height=400,
+                        legend=dict(orientation='h', yanchor='bottom', y=1.02, xanchor='center', x=0.5)
                     )
                     st.plotly_chart(fig_saz, use_container_width=True)
+                    st.markdown('</div>', unsafe_allow_html=True)
                     
                     # Identificar melhor e pior mês
                     melhor_mes = sazonalidade.loc[sazonalidade["resultado"].idxmax()]
                     pior_mes = sazonalidade.loc[sazonalidade["resultado"].idxmin()]
                     
-                    col_saz1, col_saz2 = st.columns(2)
-                    with col_saz1:
-                        st.success(f"📈 **Melhor mês:** {melhor_mes['mes_nome']} (Resultado: {brl(melhor_mes['resultado'])})")
-                    with col_saz2:
-                        st.error(f"📉 **Pior mês:** {pior_mes['mes_nome']} (Resultado: {brl(pior_mes['resultado'])})")
+                    # KPI cards for best and worst months
+                    saz_kpis = [
+                        {'icon': '📈', 'label': f'Melhor Mês: {melhor_mes["mes_nome"]}', 'value': brl(melhor_mes['resultado']), 'card_type': 'receitas'},
+                        {'icon': '📉', 'label': f'Pior Mês: {pior_mes["mes_nome"]}', 'value': brl(pior_mes['resultado']), 'card_type': 'despesas'}
+                    ]
+                    st.markdown(render_kpi_cards(saz_kpis), unsafe_allow_html=True)
 
 # =============================================================================
 # REGISTRAR NOVO LANÇAMENTO
@@ -863,7 +1501,7 @@ elif page == "📒 Lançamentos":
     if df.empty:
         st.info("📭 Sem registros ainda. Use a aba **Registrar** para adicionar os primeiros.")
     else:
-        st.markdown("### 🔍 Filtros")
+        st.markdown('<div class="section-header">🔍 Filtros</div>', unsafe_allow_html=True)
         colf1, colf2, colf3, colf4, colf5 = st.columns(5)
         with colf1:
             base_data = pd.to_datetime(df["data"])
@@ -912,15 +1550,17 @@ elif page == "📒 Lançamentos":
 
         view = view.sort_values(["data"], ascending=False)
 
-        st.markdown("---")
-        col_r1, col_r2, col_r3, col_r4 = st.columns(4)
-        col_r1.metric("📊 Total de Registros", len(view))
         receitas_filtro = view.loc[view["valor"] > 0, "valor"].sum()
         despesas_filtro = -view.loc[view["valor"] < 0, "valor"].sum()
-        col_r2.metric("💰 Receitas", brl(receitas_filtro))
-        col_r3.metric("💸 Despesas", brl(despesas_filtro))
-        col_r4.metric("📈 Resultado", brl(receitas_filtro - despesas_filtro))
-        st.markdown("---")
+        resultado_filtro = receitas_filtro - despesas_filtro
+        
+        lancamentos_kpis = [
+            {'icon': '📊', 'label': 'Total de Registros', 'value': str(len(view)), 'card_type': ''},
+            {'icon': '💰', 'label': 'Receitas', 'value': brl(receitas_filtro), 'card_type': 'receitas'},
+            {'icon': '💸', 'label': 'Despesas', 'value': brl(despesas_filtro), 'card_type': 'despesas'},
+            {'icon': '📈', 'label': 'Resultado', 'value': brl(resultado_filtro), 'card_type': 'resultado' if resultado_filtro >= 0 else 'despesas'}
+        ]
+        st.markdown(render_kpi_cards(lancamentos_kpis), unsafe_allow_html=True)
 
         if not view.empty:
             view_disp = view.copy()
@@ -936,12 +1576,11 @@ elif page == "📒 Lançamentos":
                     "conta":"Pagamento","quem":"Responsável","evento":"Evento"
                 })
             )
-            st.markdown("### 📋 Lançamentos")
+            st.markdown('<div class="section-header">📋 Lançamentos</div>', unsafe_allow_html=True)
             st.dataframe(df_show, use_container_width=True, hide_index=True)
 
             # ---- Edição simplificada (com _row)
-            st.markdown("---")
-            st.markdown("### ✏️ Editar Lançamentos")
+            st.markdown('<div class="section-header">✏️ Editar Lançamentos</div>', unsafe_allow_html=True)
 
             lancamentos_lista = []
             for idx, row in view.iterrows():
@@ -1088,19 +1727,21 @@ elif page == "🧾 Fechamento":
         resultado = receitas - despesas
         qtd_shows = count_shows(dfm)
 
-        st.markdown(f"### 📊 Resumo: {periodo_titulo}")
-        c1, c2, c3, c4 = st.columns(4)
-        c1.metric("💰 Receitas", brl(receitas))
-        c2.metric("💸 Despesas", brl(despesas))
-        c3.metric("📈 Resultado", brl(resultado))
-        c4.metric("🎤 Shows", int(qtd_shows))
-        st.markdown("---")
+        st.markdown(f'<div class="period-badge">📅 {periodo_titulo}</div>', unsafe_allow_html=True)
+        
+        fechamento_kpis = [
+            {'icon': '💰', 'label': 'Receitas', 'value': brl(receitas), 'card_type': 'receitas'},
+            {'icon': '💸', 'label': 'Despesas', 'value': brl(despesas), 'card_type': 'despesas'},
+            {'icon': '📈', 'label': 'Resultado', 'value': brl(resultado), 'card_type': 'resultado' if resultado >= 0 else 'despesas'},
+            {'icon': '🎤', 'label': 'Shows', 'value': str(int(qtd_shows)), 'card_type': 'shows'}
+        ]
+        st.markdown(render_kpi_cards(fechamento_kpis), unsafe_allow_html=True)
 
         # Remover a tab de Centro de Custo e manter apenas Rateio Fixo
         tab1, tab2 = st.tabs(["⚙️ Config. Rateio Fixo", "💰 Resultado Final"])
 
         with tab1:
-            st.markdown("### ⚙️ Configuração de Rateio Fixo")
+            st.markdown('<div class="section-header">⚙️ Configuração de Rateio Fixo</div>', unsafe_allow_html=True)
             st.info("💡 **Rateio fixo:** Cada membro recebe um percentual fixo do resultado total da banda.")
             
             # Lê configuração de rateio; se estiver vazia, será sobrescrita com valores padrão
@@ -1148,7 +1789,7 @@ elif page == "🧾 Fechamento":
                     st.error("❌ Ajuste os percentuais para totalizar 100%!")
 
         with tab2:
-            st.markdown("### 💰 Cálculo do Rateio")
+            st.markdown('<div class="section-header">💰 Cálculo do Rateio</div>', unsafe_allow_html=True)
             
             # Lê a configuração atualizada
             cfg = read_rateio_config().copy()
@@ -1170,20 +1811,33 @@ elif page == "🧾 Fechamento":
                 ativo["valor_fmt"] = ativo["valor"].map(brl)
                 ativo["percentual_fmt"] = (ativo["percentual"] * 100).map(lambda x: f"{x:.2f}%")
                 
-                st.markdown("#### 📊 Distribuição do Resultado")
+                st.markdown('<div class="section-header">📊 Distribuição do Resultado</div>', unsafe_allow_html=True)
                 
-                # Gráfico de pizza
-                fig = px.pie(
-                    ativo, 
-                    values="valor", 
-                    names="membro", 
-                    hole=0.4,
-                    title=f"Distribuição do Resultado entre Membros - {periodo_titulo}",
-                    color_discrete_sequence=px.colors.qualitative.Set3
+                # Gráfico de pizza com estilo corporativo moderno
+                st.markdown('<div class="card-container">', unsafe_allow_html=True)
+                colors_rateio = ['#1e3a5f', '#2d5a87', '#3b82f6', '#60a5fa', '#93c5fd', '#8b5cf6', '#a78bfa', '#10b981']
+                fig = go.Figure(data=[go.Pie(
+                    labels=ativo["membro"],
+                    values=ativo["valor"],
+                    hole=0.5,
+                    marker=dict(colors=colors_rateio[:len(ativo)]),
+                    textinfo='label+percent',
+                    textfont=dict(size=12, family="Inter, sans-serif"),
+                    hovertemplate="<b>%{label}</b><br>Valor: R$ %{value:,.2f}<br>Percentual: %{percent}<extra></extra>"
+                )])
+                fig.update_layout(
+                    font=dict(family="Inter, sans-serif", size=12, color="#1e293b"),
+                    paper_bgcolor='rgba(0,0,0,0)',
+                    plot_bgcolor='rgba(0,0,0,0)',
+                    title=dict(text=f"Distribuição do Resultado - {periodo_titulo}", x=0.5, xanchor='center', font=dict(size=16, color='#1e3a5f')),
+                    height=420,
+                    showlegend=True,
+                    legend=dict(orientation='h', yanchor='bottom', y=-0.15, xanchor='center', x=0.5, bgcolor='rgba(255,255,255,0.8)')
                 )
                 st.plotly_chart(fig, use_container_width=True)
+                st.markdown('</div>', unsafe_allow_html=True)
                 
-                st.markdown("#### 💵 Valores por Membro")
+                st.markdown('<div class="section-header">💵 Valores por Membro</div>', unsafe_allow_html=True)
                 
                 # Tabela com valores
                 df_display = dedupe_columns(
@@ -1206,23 +1860,22 @@ elif page == "🧾 Fechamento":
                     use_container_width=True
                 )
                 
-                # Resumo financeiro adicional
-                st.markdown("#### 📋 Resumo Financeiro")
-                col_res1, col_res2, col_res3 = st.columns(3)
-                with col_res1:
-                    st.metric("💵 Resultado Total", brl(resultado))
-                with col_res2:
-                    st.metric("👥 Membros Ativos", len(ativo))
-                with col_res3:
-                    st.metric("📊 Média por Membro", brl(resultado / len(ativo) if len(ativo) > 0 else 0))
+                # Resumo financeiro adicional com KPI cards
+                st.markdown('<div class="section-header">📋 Resumo Financeiro</div>', unsafe_allow_html=True)
+                resumo_kpis = [
+                    {'icon': '💵', 'label': 'Resultado Total', 'value': brl(resultado), 'card_type': 'resultado' if resultado >= 0 else 'despesas'},
+                    {'icon': '👥', 'label': 'Membros Ativos', 'value': str(len(ativo)), 'card_type': ''},
+                    {'icon': '📊', 'label': 'Média por Membro', 'value': brl(resultado / len(ativo) if len(ativo) > 0 else 0), 'card_type': ''}
+                ]
+                st.markdown(render_kpi_cards(resumo_kpis), unsafe_allow_html=True)
 
 # =============================================================================
 # IMPORTAR EXCEL
 # =============================================================================
 elif page == "⬆️ Importar Excel":
     st.markdown('<p class="main-header">⬆️ Importar Planilha Excel</p>', unsafe_allow_html=True)
+    st.markdown('<div class="section-header">📋 Instruções</div>', unsafe_allow_html=True)
     st.markdown("""
-    ### 📋 Instruções
     - Faça upload de um arquivo Excel (.xlsx ou .xls)
     - O sistema detectará automaticamente as colunas
     - Colunas esperadas: **Data**, **Entrada/Saída**, **Descrição**, **Valor**, **Categoria**
