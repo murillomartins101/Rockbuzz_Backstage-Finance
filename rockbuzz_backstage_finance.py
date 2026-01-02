@@ -883,17 +883,18 @@ if page == "📊 Dashboard":
                 plot_bgcolor='rgba(0,0,0,0)',
                 margin=dict(l=20, r=20, t=60, b=20),
                 title_font=dict(size=16, color='#1e3a5f', family="Inter, sans-serif"),
-                legend=dict(
-                    bgcolor='rgba(255,255,255,0.8)',
-                    bordercolor='#e2e8f0',
-                    borderwidth=1,
-                    font=dict(size=11)
-                ),
                 hoverlabel=dict(
                     bgcolor='white',
                     font_size=12,
                     font_family="Inter, sans-serif"
                 )
+            )
+            
+            legend_base = dict(
+                bgcolor='rgba(255,255,255,0.8)',
+                bordercolor='#e2e8f0',
+                borderwidth=1,
+                font=dict(size=11)
             )
 
             with tab1:
@@ -914,7 +915,7 @@ if page == "📊 Dashboard":
                         title=dict(text="Distribuição: Receitas vs Despesas", x=0.5, xanchor='center'),
                         height=420,
                         showlegend=True,
-                        legend=dict(orientation='h', yanchor='bottom', y=-0.1, xanchor='center', x=0.5)
+                        legend={**legend_base, 'orientation': 'h', 'yanchor': 'bottom', 'y': -0.1, 'xanchor': 'center', 'x': 0.5}
                     )
                     # Add center annotation
                     fig_pizza.add_annotation(
@@ -997,7 +998,7 @@ if page == "📊 Dashboard":
                         yaxis=dict(title='Valor (R$)', showgrid=True, gridcolor='#f1f5f9'),
                         height=500,
                         hovermode='x unified',
-                        legend=dict(orientation='h', yanchor='bottom', y=1.02, xanchor='center', x=0.5)
+                        legend={**legend_base, 'orientation': 'h', 'yanchor': 'bottom', 'y': 1.02, 'xanchor': 'center', 'x': 0.5}
                     )
                     st.plotly_chart(fig, use_container_width=True)
                     st.markdown('</div>', unsafe_allow_html=True)
@@ -1355,7 +1356,7 @@ if page == "📊 Dashboard":
                         barmode='group',
                         height=450,
                         hovermode='x unified',
-                        legend=dict(orientation='h', yanchor='bottom', y=1.02, xanchor='center', x=0.5)
+                        legend={**legend_base, 'orientation': 'h', 'yanchor': 'bottom', 'y': 1.02, 'xanchor': 'center', 'x': 0.5}
                     )
                     st.plotly_chart(fig_proj, use_container_width=True)
                     st.markdown('</div>', unsafe_allow_html=True)
@@ -1408,7 +1409,7 @@ if page == "📊 Dashboard":
                         yaxis=dict(title='Valor (R$)', showgrid=True, gridcolor='#f1f5f9'),
                         barmode='group',
                         height=400,
-                        legend=dict(orientation='h', yanchor='bottom', y=1.02, xanchor='center', x=0.5)
+                        legend={**legend_base, 'orientation': 'h', 'yanchor': 'bottom', 'y': 1.02, 'xanchor': 'center', 'x': 0.5}
                     )
                     st.plotly_chart(fig_saz, use_container_width=True)
                     st.markdown('</div>', unsafe_allow_html=True)
