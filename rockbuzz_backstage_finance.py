@@ -29,241 +29,347 @@ st.set_page_config(
     page_icon="🤘"
 )
 
-# CSS - Modern Corporate Theme
+# CSS - Professional Financial Dashboard Theme
 st.markdown("""
 <style>
-    /* Import Google Fonts */
-    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
     
     /* Global Styles */
     .stApp {
         font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+        background-color: #f5f5f7;
     }
     
     /* Main Header */
     .main-header {
-        font-size: 2rem;
+        font-size: 1.75rem;
         font-weight: 700;
-        background: linear-gradient(135deg, #1e3a5f 0%, #2d5a87 100%);
-        -webkit-background-clip: text;
-        -webkit-text-fill-color: transparent;
-        background-clip: text;
-        text-align: left;
+        color: #1a1a2e;
         margin-bottom: 1.5rem;
-        padding-bottom: 0.5rem;
-        border-bottom: 3px solid #e8f4f8;
+        padding: 0;
     }
     
-    /* KPI Card Styles */
-    .kpi-container {
-        display: flex;
+    /* Dark KPI Cards - Financial Dashboard Style */
+    .kpi-row {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
         gap: 1rem;
-        flex-wrap: wrap;
+        margin-bottom: 1.5rem;
+    }
+    
+    @media (max-width: 1200px) {
+        .kpi-row {
+            grid-template-columns: repeat(2, 1fr);
+        }
+    }
+    
+    @media (max-width: 768px) {
+        .kpi-row {
+            grid-template-columns: 1fr;
+        }
+    }
+    
+    .kpi-card-dark {
+        background: #1a1a2e;
+        border-radius: 12px;
+        padding: 1.25rem 1.5rem;
+        color: white;
+        position: relative;
+        min-height: 100px;
+    }
+    
+    .kpi-card-dark.accent {
+        background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+        border-left: 4px solid #fbbf24;
+    }
+    
+    .kpi-card-dark.green {
+        border-left: 4px solid #10b981;
+    }
+    
+    .kpi-card-dark.red {
+        border-left: 4px solid #ef4444;
+    }
+    
+    .kpi-card-dark.blue {
+        border-left: 4px solid #3b82f6;
+    }
+    
+    .kpi-card-dark .kpi-value {
+        font-size: 1.75rem;
+        font-weight: 700;
+        color: #ffffff;
+        margin-bottom: 0.25rem;
+    }
+    
+    .kpi-card-dark .kpi-label {
+        font-size: 0.75rem;
+        font-weight: 500;
+        color: #9ca3af;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+    
+    .kpi-card-dark .kpi-delta {
+        font-size: 0.7rem;
+        margin-top: 0.5rem;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.25rem;
+        padding: 0.2rem 0.5rem;
+        border-radius: 4px;
+    }
+    
+    .kpi-card-dark .kpi-delta.positive {
+        color: #10b981;
+        background: rgba(16, 185, 129, 0.15);
+    }
+    
+    .kpi-card-dark .kpi-delta.negative {
+        color: #ef4444;
+        background: rgba(239, 68, 68, 0.15);
+    }
+    
+    /* Legacy KPI container for compatibility */
+    .kpi-container {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 1rem;
         margin-bottom: 1.5rem;
     }
     
     .kpi-card {
-        background: linear-gradient(145deg, #ffffff 0%, #f8fafc 100%);
-        border-radius: 16px;
-        padding: 1.5rem;
-        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
-        border: 1px solid #e2e8f0;
-        flex: 1;
-        min-width: 200px;
-        transition: all 0.3s ease;
-        position: relative;
-        overflow: hidden;
+        background: #1a1a2e;
+        border-radius: 12px;
+        padding: 1.25rem 1.5rem;
+        color: white;
+        border-left: 4px solid #3b82f6;
     }
     
-    .kpi-card:hover {
-        transform: translateY(-4px);
-        box-shadow: 0 8px 30px rgba(0, 0, 0, 0.12);
+    .kpi-card.receitas {
+        border-left-color: #10b981;
     }
     
-    .kpi-card::before {
-        content: '';
-        position: absolute;
-        top: 0;
-        left: 0;
-        right: 0;
-        height: 4px;
-        background: linear-gradient(90deg, #3b82f6, #8b5cf6);
+    .kpi-card.despesas {
+        border-left-color: #ef4444;
     }
     
-    .kpi-card.receitas::before {
-        background: linear-gradient(90deg, #10b981, #34d399);
+    .kpi-card.resultado {
+        border-left-color: #fbbf24;
     }
     
-    .kpi-card.despesas::before {
-        background: linear-gradient(90deg, #ef4444, #f87171);
+    .kpi-card.shows {
+        border-left-color: #8b5cf6;
     }
     
-    .kpi-card.resultado::before {
-        background: linear-gradient(90deg, #3b82f6, #60a5fa);
-    }
-    
-    .kpi-card.shows::before {
-        background: linear-gradient(90deg, #8b5cf6, #a78bfa);
-    }
-    
-    .kpi-card.ticket::before {
-        background: linear-gradient(90deg, #f59e0b, #fbbf24);
+    .kpi-card.ticket {
+        border-left-color: #f59e0b;
     }
     
     .kpi-icon {
-        font-size: 2rem;
+        font-size: 1.5rem;
         margin-bottom: 0.5rem;
     }
     
     .kpi-label {
-        font-size: 0.85rem;
+        font-size: 0.75rem;
         font-weight: 500;
-        color: #64748b;
+        color: #9ca3af;
         text-transform: uppercase;
         letter-spacing: 0.5px;
-        margin-bottom: 0.5rem;
+        margin-bottom: 0.25rem;
     }
     
     .kpi-value {
-        font-size: 1.75rem;
+        font-size: 1.5rem;
         font-weight: 700;
-        color: #1e293b;
+        color: #ffffff;
         line-height: 1.2;
     }
     
     .kpi-delta {
-        font-size: 0.85rem;
+        font-size: 0.7rem;
         font-weight: 600;
         margin-top: 0.5rem;
         display: inline-flex;
         align-items: center;
         gap: 0.25rem;
-        padding: 0.25rem 0.5rem;
-        border-radius: 6px;
+        padding: 0.2rem 0.5rem;
+        border-radius: 4px;
     }
     
     .kpi-delta.positive {
-        color: #059669;
-        background: #d1fae5;
+        color: #10b981;
+        background: rgba(16, 185, 129, 0.15);
     }
     
     .kpi-delta.negative {
-        color: #dc2626;
-        background: #fee2e2;
+        color: #ef4444;
+        background: rgba(239, 68, 68, 0.15);
     }
     
     /* Section Headers */
     .section-header {
-        font-size: 1.25rem;
+        font-size: 1rem;
         font-weight: 600;
-        color: #1e3a5f;
-        margin: 2rem 0 1rem 0;
+        color: #1a1a2e;
+        margin: 1.5rem 0 1rem 0;
         padding-bottom: 0.5rem;
-        border-bottom: 2px solid #e2e8f0;
-        display: flex;
-        align-items: center;
-        gap: 0.5rem;
+        border-bottom: 2px solid #e5e7eb;
     }
     
-    /* Card Container */
+    /* Card Container - White cards for charts */
     .card-container {
         background: #ffffff;
-        border-radius: 16px;
+        border-radius: 12px;
         padding: 1.5rem;
-        box-shadow: 0 2px 12px rgba(0, 0, 0, 0.06);
-        border: 1px solid #e2e8f0;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+        border: 1px solid #e5e7eb;
         margin-bottom: 1rem;
     }
     
-    /* Sidebar Styling */
+    .card-title {
+        font-size: 0.875rem;
+        font-weight: 600;
+        color: #1a1a2e;
+        margin-bottom: 1rem;
+    }
+    
+    /* Dark Sidebar */
     [data-testid="stSidebar"] {
-        background: linear-gradient(180deg, #1e3a5f 0%, #2d5a87 100%);
+        background: #1a1a2e !important;
+    }
+    
+    [data-testid="stSidebar"] > div:first-child {
+        background: #1a1a2e !important;
     }
     
     [data-testid="stSidebar"] .stMarkdown {
+        color: #e5e7eb;
+    }
+    
+    [data-testid="stSidebar"] .stMarkdown h1,
+    [data-testid="stSidebar"] .stMarkdown h2,
+    [data-testid="stSidebar"] .stMarkdown h3 {
         color: #ffffff;
     }
     
     [data-testid="stSidebar"] .stRadio label {
-        color: #e2e8f0 !important;
+        color: #e5e7eb !important;
+    }
+    
+    [data-testid="stSidebar"] .stRadio label:hover {
+        color: #fbbf24 !important;
     }
     
     [data-testid="stSidebar"] hr {
-        border-color: rgba(255, 255, 255, 0.2);
+        border-color: rgba(255, 255, 255, 0.1);
+    }
+    
+    [data-testid="stSidebar"] .stSelectbox label,
+    [data-testid="stSidebar"] .stMultiSelect label,
+    [data-testid="stSidebar"] .stDateInput label {
+        color: #e5e7eb !important;
+    }
+    
+    /* Sidebar navigation items */
+    .sidebar-nav-item {
+        padding: 0.75rem 1rem;
+        margin: 0.25rem 0;
+        border-radius: 8px;
+        color: #9ca3af;
+        cursor: pointer;
+        transition: all 0.2s ease;
+    }
+    
+    .sidebar-nav-item:hover {
+        background: rgba(255, 255, 255, 0.1);
+        color: #ffffff;
+    }
+    
+    .sidebar-nav-item.active {
+        background: rgba(251, 191, 36, 0.15);
+        color: #fbbf24;
+        border-left: 3px solid #fbbf24;
     }
     
     /* Metrics Styling */
     [data-testid="stMetric"] {
-        background: linear-gradient(145deg, #ffffff 0%, #f8fafc 100%);
+        background: #1a1a2e;
         border-radius: 12px;
         padding: 1rem;
-        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
-        border: 1px solid #e2e8f0;
+        border-left: 4px solid #3b82f6;
     }
     
     [data-testid="stMetricLabel"] {
-        font-weight: 600;
-        color: #475569;
+        font-weight: 500;
+        color: #9ca3af !important;
+        font-size: 0.75rem;
+        text-transform: uppercase;
     }
     
     [data-testid="stMetricValue"] {
         font-weight: 700;
-        color: #1e293b;
+        color: #ffffff !important;
     }
     
     /* Tabs Styling */
     .stTabs [data-baseweb="tab-list"] {
-        gap: 0.5rem;
-        background: #f1f5f9;
-        padding: 0.5rem;
-        border-radius: 12px;
+        gap: 0;
+        background: transparent;
+        border-bottom: 1px solid #e5e7eb;
     }
     
     .stTabs [data-baseweb="tab"] {
-        border-radius: 8px;
+        border-radius: 0;
         font-weight: 500;
-        color: #64748b;
-        padding: 0.75rem 1.5rem;
+        font-size: 0.875rem;
+        color: #6b7280;
+        padding: 0.75rem 1.25rem;
+        border-bottom: 2px solid transparent;
+        background: transparent;
     }
     
     .stTabs [aria-selected="true"] {
-        background: #ffffff;
-        color: #1e3a5f;
-        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        background: transparent;
+        color: #1a1a2e;
+        border-bottom: 2px solid #fbbf24;
     }
     
     /* Button Styling */
     .stButton > button {
-        border-radius: 10px;
+        border-radius: 8px;
         font-weight: 600;
-        padding: 0.75rem 1.5rem;
+        font-size: 0.875rem;
+        padding: 0.625rem 1.25rem;
         transition: all 0.2s ease;
     }
     
     .stButton > button[kind="primary"] {
-        background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+        background: #fbbf24;
+        color: #1a1a2e;
         border: none;
     }
     
     .stButton > button[kind="primary"]:hover {
-        background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
-        transform: translateY(-2px);
-        box-shadow: 0 4px 12px rgba(37, 99, 235, 0.4);
+        background: #f59e0b;
+        transform: translateY(-1px);
     }
     
     /* DataFrames */
     .stDataFrame {
-        border-radius: 12px;
+        border-radius: 8px;
         overflow: hidden;
+        border: 1px solid #e5e7eb;
     }
     
     /* Form Styling */
     .stForm {
         background: #ffffff;
-        border-radius: 16px;
+        border-radius: 12px;
         padding: 1.5rem;
-        box-shadow: 0 2px 12px rgba(0, 0, 0, 0.06);
-        border: 1px solid #e2e8f0;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+        border: 1px solid #e5e7eb;
     }
     
     /* Input Fields */
@@ -271,59 +377,65 @@ st.markdown("""
     .stTextArea > div > div > textarea,
     .stSelectbox > div > div > div,
     .stNumberInput > div > div > input {
-        border-radius: 10px;
-        border: 2px solid #e2e8f0;
-        transition: all 0.2s ease;
+        border-radius: 8px;
+        border: 1px solid #e5e7eb;
+        font-size: 0.875rem;
     }
     
     .stTextInput > div > div > input:focus,
     .stTextArea > div > div > textarea:focus {
-        border-color: #3b82f6;
-        box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+        border-color: #fbbf24;
+        box-shadow: 0 0 0 2px rgba(251, 191, 36, 0.2);
     }
     
     /* Alert Boxes */
     .stAlert {
-        border-radius: 12px;
+        border-radius: 8px;
         border: none;
+        font-size: 0.875rem;
     }
     
     /* Download Button */
     .stDownloadButton > button {
-        border-radius: 10px;
+        border-radius: 8px;
         font-weight: 600;
+        background: #1a1a2e;
+        color: white;
+    }
+    
+    .stDownloadButton > button:hover {
+        background: #16213e;
     }
     
     /* Expander */
     .streamlit-expanderHeader {
         font-weight: 600;
-        color: #1e3a5f;
-        border-radius: 10px;
+        color: #1a1a2e;
+        font-size: 0.875rem;
     }
     
     /* Progress indicators */
     .stProgress > div > div > div {
-        background: linear-gradient(90deg, #3b82f6, #8b5cf6);
+        background: #fbbf24;
     }
     
     /* Custom scrollbar */
     ::-webkit-scrollbar {
-        width: 8px;
-        height: 8px;
+        width: 6px;
+        height: 6px;
     }
     
     ::-webkit-scrollbar-track {
-        background: #f1f5f9;
-        border-radius: 4px;
+        background: #f5f5f7;
     }
     
     ::-webkit-scrollbar-thumb {
-        background: #cbd5e1;
-        border-radius: 4px;
+        background: #d1d5db;
+        border-radius: 3px;
     }
     
     ::-webkit-scrollbar-thumb:hover {
-        background: #94a3b8;
+        background: #9ca3af;
     }
     
     /* Period Badge */
@@ -331,43 +443,40 @@ st.markdown("""
         display: inline-flex;
         align-items: center;
         gap: 0.5rem;
-        background: linear-gradient(135deg, #1e3a5f 0%, #2d5a87 100%);
-        color: white;
+        background: #1a1a2e;
+        color: #fbbf24;
         padding: 0.5rem 1rem;
-        border-radius: 20px;
-        font-size: 0.9rem;
-        font-weight: 500;
+        border-radius: 6px;
+        font-size: 0.8rem;
+        font-weight: 600;
         margin-bottom: 1rem;
     }
     
-    /* Quick Stats Row */
-    .quick-stats {
-        display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    /* Legend styling for charts */
+    .chart-legend {
+        display: flex;
+        flex-wrap: wrap;
         gap: 1rem;
-        margin-bottom: 1.5rem;
+        margin-top: 0.5rem;
+        font-size: 0.75rem;
     }
     
-    .stat-item {
-        background: #f8fafc;
-        border-radius: 12px;
-        padding: 1rem;
-        text-align: center;
-        border: 1px solid #e2e8f0;
+    .legend-item {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
     }
     
-    .stat-item .value {
-        font-size: 1.5rem;
-        font-weight: 700;
-        color: #1e293b;
+    .legend-dot {
+        width: 10px;
+        height: 10px;
+        border-radius: 50%;
     }
     
-    .stat-item .label {
-        font-size: 0.8rem;
-        color: #64748b;
-        text-transform: uppercase;
-        letter-spacing: 0.5px;
-    }
+    /* Hide Streamlit branding */
+    #MainMenu {visibility: hidden;}
+    footer {visibility: hidden;}
+    header {visibility: hidden;}
 </style>
 """, unsafe_allow_html=True)
 
@@ -865,36 +974,51 @@ if page == "📊 Dashboard":
                 "📊 Visão Geral", "💰 Receitas vs Despesas", "📈 Evolução", "🏷️ Categorias", "🎤 Análise de Shows", "📉 Analytics Avançados"
             ])
 
-            # Modern chart color palette
+            # Professional Financial Dashboard color palette
             colors_corporate = {
-                'primary': '#1e3a5f',
-                'secondary': '#2d5a87',
+                'primary': '#1a1a2e',
+                'secondary': '#16213e',
                 'success': '#10b981',
                 'danger': '#ef4444',
-                'warning': '#f59e0b',
+                'warning': '#fbbf24',
                 'info': '#3b82f6',
                 'purple': '#8b5cf6',
-                'gradient': ['#1e3a5f', '#2d5a87', '#3b82f6', '#60a5fa', '#93c5fd']
+                'accent': '#fbbf24',
+                'navy': '#1a1a2e',
+                'gradient': ['#1a1a2e', '#16213e', '#0f3460', '#3b82f6', '#fbbf24']
             }
             
             chart_layout = dict(
-                font=dict(family="Inter, sans-serif", size=12, color="#1e293b"),
+                font=dict(family="Inter, sans-serif", size=11, color="#4b5563"),
                 paper_bgcolor='rgba(0,0,0,0)',
                 plot_bgcolor='rgba(0,0,0,0)',
-                margin=dict(l=20, r=20, t=60, b=20),
-                title_font=dict(size=16, color='#1e3a5f', family="Inter, sans-serif"),
+                margin=dict(l=40, r=20, t=50, b=40),
+                title_font=dict(size=14, color='#1a1a2e', family="Inter, sans-serif"),
                 hoverlabel=dict(
-                    bgcolor='white',
-                    font_size=12,
-                    font_family="Inter, sans-serif"
+                    bgcolor='#1a1a2e',
+                    font_size=11,
+                    font_family="Inter, sans-serif",
+                    font_color='white'
+                ),
+                xaxis=dict(
+                    showgrid=True,
+                    gridcolor='#e5e7eb',
+                    linecolor='#e5e7eb',
+                    tickfont=dict(size=10)
+                ),
+                yaxis=dict(
+                    showgrid=True,
+                    gridcolor='#e5e7eb',
+                    linecolor='#e5e7eb',
+                    tickfont=dict(size=10)
                 )
             )
             
             legend_base = dict(
-                bgcolor='rgba(255,255,255,0.8)',
-                bordercolor='#e2e8f0',
+                bgcolor='rgba(255,255,255,0.95)',
+                bordercolor='#e5e7eb',
                 borderwidth=1,
-                font=dict(size=11)
+                font=dict(size=10, color='#4b5563')
             )
 
             with tab1:
