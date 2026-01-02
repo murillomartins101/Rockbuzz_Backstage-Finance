@@ -999,19 +999,14 @@ if page == "📊 Dashboard":
                     font_size=11,
                     font_family="Inter, sans-serif",
                     font_color='white'
-                ),
-                xaxis=dict(
-                    showgrid=True,
-                    gridcolor='#e5e7eb',
-                    linecolor='#e5e7eb',
-                    tickfont=dict(size=10)
-                ),
-                yaxis=dict(
-                    showgrid=True,
-                    gridcolor='#e5e7eb',
-                    linecolor='#e5e7eb',
-                    tickfont=dict(size=10)
                 )
+            )
+            
+            axis_style = dict(
+                showgrid=True,
+                gridcolor='#e5e7eb',
+                linecolor='#e5e7eb',
+                tickfont=dict(size=10)
             )
             
             legend_base = dict(
