@@ -385,15 +385,7 @@ def render_kpi_cards(kpis: list) -> str:
             delta_class = 'positive' if kpi.get('delta_type') == 'positive' else 'negative'
             delta_icon = '&#9650;' if kpi.get('delta_type') == 'positive' else '&#9660;'
             delta_html = f'<div class="kpi-delta {delta_class}">{delta_icon} {kpi["delta"]}</div>'
-        
-        cards_html += f'''
-        <div class="kpi-card {card_type}">
-            <div class="kpi-icon">{kpi.get('icon', '')}</div>
-            <div class="kpi-label">{kpi.get('label', '')}</div>
-            <div class="kpi-value">{kpi.get('value', '')}</div>
-            {delta_html}
-        </div>
-        '''
+        cards_html += f'<div class="kpi-card {card_type}"><div class="kpi-icon">{kpi.get("icon", "")}</div><div class="kpi-label">{kpi.get("label", "")}</div><div class="kpi-value">{kpi.get("value", "")}</div>{delta_html}</div>'
     cards_html += '</div>'
     return cards_html
 
