@@ -1471,7 +1471,7 @@ if page == "📊 Dashboard":
                         title=dict(text="Projeção Financeira (baseada na média dos últimos 3 meses)", x=0.5, xanchor='center'),
                         xaxis={**axis_style, 'title': 'Mês', 'showgrid': False},
                         yaxis={**axis_style, 'title': 'Valor (R$)', 'showgrid': True},
-                        yaxis2=dict(title="Saldo Acumulado (R$)", overlaying='y', side='right', showgrid=False),
+                        yaxis2={**axis_style, 'title': 'Saldo Acumulado (R$)', 'overlaying': 'y', 'side': 'right', 'showgrid': False},
                         barmode='group',
                         height=450,
                         hovermode='x unified',
