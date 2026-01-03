@@ -558,9 +558,13 @@ def _only_shows_mask(df: pd.DataFrame) -> pd.Series:
 def count_shows(df: pd.DataFrame) -> int:
     """
     Conta shows exclusivamente na categoria 'Shows'.
-    - Filtra categoria 'Shows' e somente receitas (tipo == 'Entrada' ou valor > 0).
-    - Conta eventos nomeados distintos (case-insensitive).
-    - Para linhas sem evento: deduplica por data (dia), fallback por descrição normalizada (case-insensitive), último recurso conta linhas.
+    - Filtra categoria 'Shows' (considera todas as linhas da categoria, não apenas receitas).
+    - Usa (data, evento) como chave única para shows com evento preenchido.
+    - Para linhas sem evento: usa (data, descricao) como chave única.
+    - Fallback: conta linhas únicas.
+    
+    Isso garante que shows com o mesmo nome em datas diferentes sejam contados separadamente,
+    e que múltiplos shows no mesmo dia com eventos/descrições diferentes também sejam contados.
     """
     if df is None or df.empty:
         return 0
@@ -570,55 +574,54 @@ def count_shows(df: pd.DataFrame) -> int:
     if base.empty:
         return 0
     
-    # Considera somente receitas
-    if "tipo" in base.columns:
-        tipo = base["tipo"].astype(str).str.strip().str.casefold()
-        base = base.loc[tipo.eq("entrada") | (base["valor"] > 0)].copy()
+    # Prepara colunas para deduplicação
+    if "data" in base.columns:
+        base["_data_str"] = base["data"].dt.strftime("%Y-%m-%d").fillna("")
     else:
-        base = base.loc[base["valor"] > 0].copy()
+        base["_data_str"] = ""
     
-    if base.empty:
-        return 0
-    
-    # Conta eventos nomeados distintos
     if "evento" in base.columns:
-        ev = base["evento"].astype(str).str.strip()
-        com_evento = base.loc[ev.ne("")].copy()
-        sem_evento = base.loc[ev.eq("")].copy()
-        
-        # Eventos nomeados (case-insensitive)
-        qtd_eventos = int(com_evento["evento"].str.casefold().nunique()) if not com_evento.empty else 0
-        
-        # Linhas sem evento: deduplica por data (dia)
-        qtd_sem_evento = 0
-        if not sem_evento.empty:
-            if "data" in sem_evento.columns:
-                # Tenta deduplicar por data (dia)
-                sem_evento_com_data = sem_evento.loc[sem_evento["data"].notna()].copy()
-                sem_evento_sem_data = sem_evento.loc[sem_evento["data"].isna()].copy()
-                
-                if not sem_evento_com_data.empty:
-                    # Conta dias únicos
-                    qtd_sem_evento += int(sem_evento_com_data["data"].dt.date.nunique())
-                
-                if not sem_evento_sem_data.empty:
-                    # Fallback por descrição (normalizada e case-insensitive)
-                    # Fallback por descrição normalizada (case-insensitive)
-                    if "descricao" in sem_evento_sem_data.columns:
-                        desc = sem_evento_sem_data["descricao"].astype(str).str.strip().str.casefold()
-                        com_desc_mask = desc.ne("")
-                        sem_desc_mask = desc.eq("")
-                        
-                        # Conta descrições únicas (já normalizadas)
-                        qtd_sem_evento += int(desc[com_desc_mask].nunique())
-                        qtd_sem_evento += int(sem_desc_mask.sum())  # Último recurso: conta linhas
-                    else:
-                        qtd_sem_evento += len(sem_evento_sem_data)
-        
-        return qtd_eventos + qtd_sem_evento
+        base["_evento_norm"] = base["evento"].astype(str).str.strip().str.casefold()
+    else:
+        base["_evento_norm"] = ""
     
-    # Se não tem coluna evento, conta linhas (fallback)
-    return len(base)
+    if "descricao" in base.columns:
+        base["_descricao_norm"] = base["descricao"].astype(str).str.strip().str.casefold()
+    else:
+        base["_descricao_norm"] = ""
+    
+    # Separa linhas com e sem evento
+    com_evento = base.loc[base["_evento_norm"].ne("")].copy()
+    sem_evento = base.loc[base["_evento_norm"].eq("")].copy()
+    
+    # Para linhas com evento: conta combinações únicas de (data, evento)
+    qtd_com_evento = 0
+    if not com_evento.empty:
+        # Cria chave única (data, evento)
+        com_evento["_show_key"] = com_evento["_data_str"] + "|" + com_evento["_evento_norm"]
+        qtd_com_evento = int(com_evento["_show_key"].nunique())
+    
+    # Para linhas sem evento: conta combinações únicas de (data, descricao)
+    qtd_sem_evento = 0
+    if not sem_evento.empty:
+        # Separa linhas com e sem data
+        sem_evento_com_data = sem_evento.loc[sem_evento["_data_str"].ne("")].copy()
+        sem_evento_sem_data = sem_evento.loc[sem_evento["_data_str"].eq("")].copy()
+        
+        if not sem_evento_com_data.empty:
+            # Cria chave única (data, descricao)
+            sem_evento_com_data["_show_key"] = sem_evento_com_data["_data_str"] + "|" + sem_evento_com_data["_descricao_norm"]
+            qtd_sem_evento += int(sem_evento_com_data["_show_key"].nunique())
+        
+        if not sem_evento_sem_data.empty:
+            # Fallback: conta descrições únicas ou linhas
+            if sem_evento_sem_data["_descricao_norm"].ne("").any():
+                qtd_sem_evento += int(sem_evento_sem_data.loc[sem_evento_sem_data["_descricao_norm"].ne(""), "_descricao_norm"].nunique())
+                qtd_sem_evento += int((sem_evento_sem_data["_descricao_norm"].eq("")).sum())
+            else:
+                qtd_sem_evento += len(sem_evento_sem_data)
+    
+    return qtd_com_evento + qtd_sem_evento
 
 def calcular_ticket_medio(df: pd.DataFrame) -> float:
     """
@@ -820,13 +823,77 @@ def append_rows(sheet_name: str, rows: List[List]):
         for r in rows:
             ws.append_row(r, value_input_option="USER_ENTERED")
 
-def update_row(sheet_name: str, row_index: int, new_data: List):
+def update_row(sheet_name: str, row_index: int, new_data: List, field_names: List[str] = None):
+    """
+    Atualiza uma linha no Google Sheets.
+    
+    Args:
+        sheet_name: Nome da planilha
+        row_index: Índice da linha (0-based, será convertido para row_index+2 no Sheets)
+        new_data: Lista de valores a serem salvos
+        field_names: Lista de nomes de campos correspondentes aos valores em new_data.
+                    Se fornecido, os valores serão mapeados para as colunas corretas
+                    baseado no cabeçalho real da planilha.
+                    Se não fornecido, usa a ordem padrão: 
+                    ["data","tipo","categoria","descricao","conta","valor","quem","evento","tags"]
+    """
     gc, sheet_id = get_sheet_client()
     if not (gc and sheet_id):
         raise RuntimeError("Google Sheets não configurado.")
     sh = gc.open_by_key(sheet_id)
     ws = ensure_ws_with_header(sh, sheet_name)
-    ws.update(f'A{row_index+2}:I{row_index+2}', [new_data], value_input_option="USER_ENTERED")
+    
+    # Ordem padrão dos campos (deve corresponder ao cabeçalho criado em ensure_ws_with_header)
+    default_field_order = ["data","tipo","categoria","descricao","conta","valor","quem","evento","tags"]
+    
+    if field_names is None:
+        field_names = default_field_order
+    
+    # Lê o cabeçalho real da planilha para mapear corretamente
+    header_row = ws.row_values(1)
+    if not header_row:
+        # Se não há cabeçalho, usa a ordem padrão
+        ws.update(f'A{row_index+2}:I{row_index+2}', [new_data], value_input_option="USER_ENTERED")
+        return
+    
+    # Normaliza o cabeçalho para comparação (minúsculo, sem acentos)
+    def norm_header(s: str) -> str:
+        s = s.strip().lower()
+        s = (s.replace("ã","a").replace("á","a").replace("à","a").replace("â","a")
+              .replace("é","e").replace("ê","e").replace("í","i")
+              .replace("ó","o").replace("ô","o").replace("õ","o")
+              .replace("ú","u").replace("ç","c"))
+        return s
+    
+    # Mapeamento de aliases para nomes canônicos
+    alias_map = {
+        "data":"data","data do lancamento":"data","data do lançamento":"data","dt":"data",
+        "tipo":"tipo","entrada/saida":"tipo","entrada/saída":"tipo",
+        "categoria":"categoria",
+        "descricao":"descricao","descrição":"descricao",
+        "conta":"conta","forma de pagamento":"conta","pagamento":"conta",
+        "valor":"valor",
+        "quem":"quem","responsavel":"quem","responsável":"quem",
+        "evento":"evento","show":"evento",
+        "tags":"tags",
+    }
+    
+    # Cria mapeamento: nome do campo -> índice da coluna no sheet
+    header_normalized = [alias_map.get(norm_header(h), norm_header(h)) for h in header_row]
+    col_index_map = {name: idx for idx, name in enumerate(header_normalized)}
+    
+    # Cria a linha de dados com valores nas posições corretas
+    row_data = [""] * len(header_row)
+    for field_name, value in zip(field_names, new_data):
+        field_normalized = alias_map.get(norm_header(field_name), norm_header(field_name))
+        if field_normalized in col_index_map:
+            row_data[col_index_map[field_normalized]] = value
+    
+    # Determina o range a ser atualizado (de A até a última coluna com dados)
+    last_col = len(header_row)
+    last_col_letter = chr(ord('A') + last_col - 1) if last_col <= 26 else 'Z'
+    
+    ws.update(f'A{row_index+2}:{last_col_letter}{row_index+2}', [row_data], value_input_option="USER_ENTERED")
 
 def delete_row(sheet_name: str, row_index: int):
     gc, sheet_id = get_sheet_client()
@@ -1823,12 +1890,17 @@ elif page == "📒 Lançamentos":
                         sign = 1 if novoTipo == "Entrada" else -1
                         novo_valor_com_sinal = sign * float(novo_valor)
                         linha_sheets = int(lancamento["_row"])  # <— linha real no Sheets
+                        
+                        # Define os nomes dos campos e seus valores correspondentes
+                        # Isso garante que os valores sejam mapeados para as colunas corretas
+                        # independentemente da ordem das colunas na planilha
+                        field_names = ["data", "tipo", "categoria", "descricao", "conta", "valor", "quem", "evento", "tags"]
                         nova_linha = [
                             pd.to_datetime(nova_data).strftime("%Y-%m-%d"),
                             novoTipo, nova_categoria, nova_descricao, nova_conta,
                             novo_valor_com_sinal, novo_quem, novo_evento, novas_tags
                         ]
-                        update_row("lancamentos", linha_sheets, nova_linha)
+                        update_row("lancamentos", linha_sheets, nova_linha, field_names=field_names)
                         st.cache_data.clear()
                         st.success("✅ Lançamento atualizado com sucesso!")
                         st.rerun()
