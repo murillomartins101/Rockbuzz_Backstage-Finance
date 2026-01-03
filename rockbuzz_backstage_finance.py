@@ -560,7 +560,7 @@ def count_shows(df: pd.DataFrame) -> int:
     Conta shows exclusivamente na categoria 'Shows'.
     - Filtra categoria 'Shows' e somente receitas (tipo == 'Entrada' ou valor > 0).
     - Conta eventos nomeados distintos (case-insensitive).
-    - Para linhas sem evento: deduplica por data (dia), fallback por descrição, último recurso conta linhas.
+    - Para linhas sem evento: deduplica por data (dia), fallback por descrição normalizada (case-insensitive), último recurso conta linhas.
     """
     if df is None or df.empty:
         return 0
@@ -603,23 +603,29 @@ def count_shows(df: pd.DataFrame) -> int:
                 
                 if not sem_evento_sem_data.empty:
                     # Fallback por descrição (normalizada e case-insensitive)
+                    # Fallback por descrição normalizada (case-insensitive)
                     if "descricao" in sem_evento_sem_data.columns:
                         desc = sem_evento_sem_data["descricao"].astype(str).str.strip().str.casefold()
                         com_desc_mask = desc.ne("")
                         sem_desc_mask = desc.eq("")
                         
                         qtd_sem_evento += int(desc[com_desc_mask].nunique()) if com_desc_mask.any() else 0
+                        # Conta descrições únicas (já normalizadas)
+                        qtd_sem_evento += int(desc[com_desc_mask].nunique())
                         qtd_sem_evento += int(sem_desc_mask.sum())  # Último recurso: conta linhas
                     else:
                         qtd_sem_evento += len(sem_evento_sem_data)
             else:
                 # Não tem coluna data, tenta descrição (normalizada e case-insensitive)
+                # Não tem coluna data, tenta descrição normalizada
                 if "descricao" in sem_evento.columns:
                     desc = sem_evento["descricao"].astype(str).str.strip().str.casefold()
                     com_desc_mask = desc.ne("")
                     sem_desc_mask = desc.eq("")
                     
                     qtd_sem_evento += int(desc[com_desc_mask].nunique()) if com_desc_mask.any() else 0
+                    # Conta descrições únicas (já normalizadas)
+                    qtd_sem_evento += int(desc[com_desc_mask].nunique())
                     qtd_sem_evento += int(sem_desc_mask.sum())
                 else:
                     qtd_sem_evento += len(sem_evento)
