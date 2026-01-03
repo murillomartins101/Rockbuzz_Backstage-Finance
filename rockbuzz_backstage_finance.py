@@ -6,8 +6,6 @@ from typing import List, Optional
 
 import numpy as np
 import pandas as pd
-import re       
-import plotly.express as px
 import plotly.graph_objects as go
 import streamlit as st
 
@@ -1036,9 +1034,10 @@ if page == "📊 Dashboard":
                         showlegend=True,
                         legend={**legend_base, 'orientation': 'h', 'yanchor': 'bottom', 'y': -0.1, 'xanchor': 'center', 'x': 0.5}
                     )
-                    # Add center annotation
+                    # Add center annotation with result (receitas - despesas)
+                    resultado = receitas - despesas
                     fig_pizza.add_annotation(
-                        text=f"<b>Total</b><br>{brl(receitas + despesas)}",
+                        text=f"<b>Resultado</b><br>{brl(resultado)}",
                         x=0.5, y=0.5, font_size=14, showarrow=False,
                         font=dict(family="Inter, sans-serif", color="#1e293b")
                     )
