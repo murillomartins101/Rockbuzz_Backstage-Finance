@@ -844,7 +844,7 @@ def parse_legacy_excel(file: bytes) -> pd.DataFrame:
 # SIDEBAR
 # =============================================================================
 with st.sidebar:
-    st.markdown("# 🎸 Rockbuzz")
+    st.image("LOGO DEFINITIVO FUNDO ESCURO.png")
     st.markdown("### Gestão Financeira")
     st.markdown("---")
     page = st.radio(
