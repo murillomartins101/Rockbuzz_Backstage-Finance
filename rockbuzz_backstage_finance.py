@@ -609,7 +609,7 @@ def count_shows(df: pd.DataFrame) -> int:
                         sem_desc_mask = desc.eq("")
                         
                         # Conta descrições únicas (já normalizadas)
-                        qtd_sem_evento += int(desc[com_desc_mask].nunique()) if com_desc_mask.any() else 0
+                        qtd_sem_evento += int(desc[com_desc_mask].nunique())
                         qtd_sem_evento += int(sem_desc_mask.sum())  # Último recurso: conta linhas
                     else:
                         qtd_sem_evento += len(sem_evento_sem_data)
@@ -621,7 +621,7 @@ def count_shows(df: pd.DataFrame) -> int:
                     sem_desc_mask = desc.eq("")
                     
                     # Conta descrições únicas (já normalizadas)
-                    qtd_sem_evento += int(desc[com_desc_mask].nunique()) if com_desc_mask.any() else 0
+                    qtd_sem_evento += int(desc[com_desc_mask].nunique())
                     qtd_sem_evento += int(sem_desc_mask.sum())
                 else:
                     qtd_sem_evento += len(sem_evento)
