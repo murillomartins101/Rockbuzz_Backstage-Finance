@@ -1034,7 +1034,8 @@ if page == "📊 Dashboard":
                         showlegend=True,
                         legend={**legend_base, 'orientation': 'h', 'yanchor': 'bottom', 'y': -0.1, 'xanchor': 'center', 'x': 0.5}
                     )
-                    # Add center annotation with result (receitas - despesas)
+                    # Display financial result in center (Receitas - Despesas)
+                    # Shows positive/negative balance instead of incorrect sum
                     resultado = receitas - despesas
                     fig_pizza.add_annotation(
                         text=f"<b>Resultado</b><br>{brl(resultado)}",
@@ -1787,6 +1788,7 @@ elif page == "📒 Lançamentos":
                     use_container_width=True
                 )
             with col_a2:
+                # Excel export requires openpyxl engine (added to requirements.txt)
                 output = io.BytesIO()
                 with pd.ExcelWriter(output, engine='openpyxl') as writer:
                     view.to_excel(writer, index=False, sheet_name='Lancamentos')
