@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import io
+import time
 from datetime import datetime, timedelta, date
 from typing import List, Optional
 
@@ -740,13 +741,17 @@ def ensure_ws_with_header(sh, title="lancamentos"):
 # =============================================================================
 # LEITURA / ESCRITA (com _row estável)
 # =============================================================================
-@st.cache_data(show_spinner=False, ttl=120)
-def read_sheet(sheet_name: str = "lancamentos") -> pd.DataFrame:
+@st.cache_data(show_spinner=False)
+def read_sheet(sheet_name: str = "lancamentos", _force_refresh: Optional[float] = None) -> pd.DataFrame:
     """
     Lê dados do Google Sheets e:
     - normaliza cabeçalhos (minúsculo/sem acento) + aliases
     - cria coluna `_row` com o índice real da linha na planilha (0-based)
     - NÃO remove linhas sem data (para não "sumirem" na tela de Lançamentos)
+    
+    Args:
+        sheet_name: Nome da aba no Google Sheets
+        _force_refresh: Timestamp para invalidar cache (parâmetro ignorado pelo cache decorator)
     """
     gc, sheet_id = get_sheet_client()
     if not (gc and sheet_id):
@@ -920,7 +925,7 @@ with st.sidebar:
 # =============================================================================
 if page == "📊 Dashboard":
     st.markdown('<p class="main-header">🎸 Dashboard Rockbuzz</p>', unsafe_allow_html=True)
-    df = read_sheet("lancamentos")
+    df = read_sheet("lancamentos", _force_refresh=st.session_state.get('last_update'))
 
     if df.empty or df["data"].isna().all():
         st.info("📭 Sem registros ainda. Use **Registrar** para adicionar lançamentos.")
@@ -1690,8 +1695,18 @@ elif page == "📝 Registrar":
                 ]
                 
                 append_rows("lancamentos", [nova_linha])
+                
+                # FORÇAR INVALIDAÇÃO COMPLETA DO CACHE
                 st.cache_data.clear()
+                st.cache_resource.clear()
+                
+                # Adicionar timestamp para garantir reload
+                if 'last_update' not in st.session_state:
+                    st.session_state['last_update'] = None
+                st.session_state['last_update'] = datetime.now().timestamp()
+                
                 st.success("✅ Lançamento registrado com sucesso!")
+                time.sleep(0.5)  # Pequeno delay para garantir salvamento no Sheets
                 st.rerun()
                 
             except Exception as e:
@@ -1702,7 +1717,7 @@ elif page == "📝 Registrar":
 # =============================================================================
 elif page == "📒 Lançamentos":
     st.markdown('<p class="main-header">📒 Histórico de Lançamentos</p>', unsafe_allow_html=True)
-    df = read_sheet("lancamentos")
+    df = read_sheet("lancamentos", _force_refresh=st.session_state.get('last_update'))
     if df.empty:
         st.info("📭 Sem registros ainda. Use a aba **Registrar** para adicionar os primeiros.")
     else:
@@ -1842,8 +1857,18 @@ elif page == "📒 Lançamentos":
                             novo_valor_com_sinal, novo_quem, novo_evento, novas_tags
                         ]
                         update_row("lancamentos", linha_sheets, nova_linha)
+                        
+                        # FORÇAR INVALIDAÇÃO COMPLETA DO CACHE
                         st.cache_data.clear()
+                        st.cache_resource.clear()
+                        
+                        # Adicionar timestamp para garantir reload
+                        if 'last_update' not in st.session_state:
+                            st.session_state['last_update'] = None
+                        st.session_state['last_update'] = datetime.now().timestamp()
+                        
                         st.success("✅ Lançamento atualizado com sucesso!")
+                        time.sleep(0.5)  # Pequeno delay para garantir salvamento no Sheets
                         st.rerun()
                     except Exception as e:
                         st.error(f"❌ Erro ao atualizar: {e}")
@@ -1858,9 +1883,19 @@ elif page == "📒 Lançamentos":
                         try:
                             linha_sheets = int(lancamento["_row"])
                             delete_row("lancamentos", linha_sheets)
+                            
+                            # FORÇAR INVALIDAÇÃO COMPLETA DO CACHE
                             st.cache_data.clear()
+                            st.cache_resource.clear()
+                            
+                            # Adicionar timestamp para garantir reload
+                            if 'last_update' not in st.session_state:
+                                st.session_state['last_update'] = None
+                            st.session_state['last_update'] = datetime.now().timestamp()
+                            
                             st.success("✅ Lançamento excluído com sucesso!")
                             st.session_state.pop("confirm_delete_idx", None)
+                            time.sleep(0.5)  # Pequeno delay para garantir salvamento no Sheets
                             st.rerun()
                         except Exception as e:
                             st.error(f"❌ Erro ao excluir: {e}")
@@ -1900,7 +1935,7 @@ elif page == "📒 Lançamentos":
 # =============================================================================
 elif page == "🧾 Fechamento":
     st.markdown('<p class="main-header">🧾 Fechamento Mensal & Rateio</p>', unsafe_allow_html=True)
-    df_all = read_sheet("lancamentos")
+    df_all = read_sheet("lancamentos", _force_refresh=st.session_state.get('last_update'))
 
     if df_all.empty or df_all["data"].isna().all():
         st.info("📭 Sem registros com data. Use a aba Registrar/Importar.")
