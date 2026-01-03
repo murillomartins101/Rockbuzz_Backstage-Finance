@@ -602,24 +602,24 @@ def count_shows(df: pd.DataFrame) -> int:
                     qtd_sem_evento += int(sem_evento_com_data["data"].dt.date.nunique())
                 
                 if not sem_evento_sem_data.empty:
-                    # Fallback por descrição
+                    # Fallback por descrição (normalizada e case-insensitive)
                     if "descricao" in sem_evento_sem_data.columns:
-                        desc = sem_evento_sem_data["descricao"].astype(str).str.strip()
+                        desc = sem_evento_sem_data["descricao"].astype(str).str.strip().str.casefold()
                         com_desc = sem_evento_sem_data.loc[desc.ne("")].copy()
                         sem_desc = sem_evento_sem_data.loc[desc.eq("")].copy()
                         
-                        qtd_sem_evento += int(com_desc["descricao"].nunique()) if not com_desc.empty else 0
+                        qtd_sem_evento += int(com_desc["descricao"].str.strip().str.casefold().nunique()) if not com_desc.empty else 0
                         qtd_sem_evento += len(sem_desc)  # Último recurso: conta linhas
                     else:
                         qtd_sem_evento += len(sem_evento_sem_data)
             else:
-                # Não tem coluna data, tenta descrição
+                # Não tem coluna data, tenta descrição (normalizada e case-insensitive)
                 if "descricao" in sem_evento.columns:
-                    desc = sem_evento["descricao"].astype(str).str.strip()
+                    desc = sem_evento["descricao"].astype(str).str.strip().str.casefold()
                     com_desc = sem_evento.loc[desc.ne("")].copy()
                     sem_desc = sem_evento.loc[desc.eq("")].copy()
                     
-                    qtd_sem_evento += int(com_desc["descricao"].nunique()) if not com_desc.empty else 0
+                    qtd_sem_evento += int(com_desc["descricao"].str.strip().str.casefold().nunique()) if not com_desc.empty else 0
                     qtd_sem_evento += len(sem_desc)
                 else:
                     qtd_sem_evento += len(sem_evento)
