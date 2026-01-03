@@ -993,7 +993,7 @@ if page == "📊 Dashboard":
                 paper_bgcolor='rgba(0,0,0,0)',
                 plot_bgcolor='rgba(0,0,0,0)',
                 margin=dict(l=40, r=20, t=60, b=40),
-                title_font=dict(size=16, color='#0f172a', family="Inter, sans-serif", weight=600),
+                title_font=dict(size=16, color='#0f172a', family="Inter, sans-serif"),
                 hoverlabel=dict(
                     bgcolor='#1a1a2e',
                     font_size=11,
