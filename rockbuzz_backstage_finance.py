@@ -558,48 +558,6 @@ def _only_shows_mask(df: pd.DataFrame) -> pd.Series:
 def count_shows(df: pd.DataFrame) -> int:
     """
     Conta shows exclusivamente na categoria 'Shows'.
-    Se 'evento' estiver preenchido em >=60% das linhas, deduplica por evento (case-insensitive);
-    senão, conta linhas.
-    """
-    if df is None or df.empty:
-        return 0
-    base = df.loc[_only_shows_mask(df)].copy()
-    if base.empty:
-        return 0
-
-    if "evento" in base.columns:
-        ev = base["evento"].astype(str).str.strip()
-        filled = ev.ne("").sum()
-        if len(base) > 0 and filled / len(base) >= 0.60:
-            return int(ev[ev.ne("")].str.casefold().nunique())
-
-    return int(len(base))
-
-def calcular_ticket_medio(df: pd.DataFrame) -> float:
-    """
-    Ticket médio = (somente receitas da categoria 'Shows') / quantidade de shows.
-    Receita = tipo == 'Entrada' (quando existir) ou valor > 0.
-    """
-    if df is None or df.empty:
-        return 0.0
-    base = df.loc[_only_shows_mask(df)].copy()
-    if base.empty:
-        return 0.0
-
-    if "tipo" in base.columns:
-        tipo = base["tipo"].astype(str).str.strip().str.casefold()
-        receitas = base.loc[tipo.eq("entrada"), "valor"].sum()
-        if receitas == 0:
-            receitas = base.loc[base["valor"] > 0, "valor"].sum()
-    else:
-        receitas = base.loc[base["valor"] > 0, "valor"].sum()
-
-    qtd = count_shows(df)
-    return float(receitas) / qtd if qtd else 0.0
-
-def count_shows_analytics(df: pd.DataFrame) -> int:
-    """
-    Conta shows para a aba Analytics Avançados.
     - Filtra categoria 'Shows' e somente receitas (tipo == 'Entrada' ou valor > 0).
     - Conta eventos nomeados distintos (case-insensitive).
     - Para linhas sem evento: deduplica por data (dia), fallback por descrição, último recurso conta linhas.
@@ -671,9 +629,9 @@ def count_shows_analytics(df: pd.DataFrame) -> int:
     # Se não tem coluna evento, conta linhas (fallback)
     return len(base)
 
-def calcular_ticket_medio_analytics(df: pd.DataFrame) -> float:
+def calcular_ticket_medio(df: pd.DataFrame) -> float:
     """
-    Ticket médio para Analytics Avançados = receitas de shows / count_shows_analytics.
+    Ticket médio = (somente receitas da categoria 'Shows') / quantidade de shows.
     Receita = tipo == 'Entrada' (quando existir) ou valor > 0.
     """
     if df is None or df.empty:
@@ -690,7 +648,7 @@ def calcular_ticket_medio_analytics(df: pd.DataFrame) -> float:
     else:
         receitas = base.loc[base["valor"] > 0, "valor"].sum()
 
-    qtd = count_shows_analytics(df)
+    qtd = count_shows(df)
     return float(receitas) / qtd if qtd else 0.0
 
 def get_periodo_descricao(dt_min: date, dt_max: date) -> str:
@@ -1444,8 +1402,8 @@ if page == "📊 Dashboard":
                 st.markdown('<div class="section-header">📉 Analytics Avançados</div>', unsafe_allow_html=True)
                 
                 # Calcular métricas específicas do Analytics
-                qtd_shows_analytics = count_shows_analytics(dfp)
-                ticket_medio_analytics = calcular_ticket_medio_analytics(dfp)
+                qtd_shows_analytics = count_shows(dfp)
+                ticket_medio_analytics = calcular_ticket_medio(dfp)
                 
                 # Seção 1: Comparação com Período Anterior
                 st.markdown('<div class="card-container">', unsafe_allow_html=True)
@@ -1495,13 +1453,13 @@ if page == "📊 Dashboard":
                 if not base_shows_trend.empty:
                     base_shows_trend["ano_mes"] = base_shows_trend["data"].dt.to_period("M").astype(str)
                     
-                    # Calcular ticket médio por mês usando funções analytics
+                    # Calcular ticket médio por mês usando funções unificadas
                     ticket_por_mes = []
                     for mes in sorted(base_shows_trend["ano_mes"].unique()):
                         df_mes = base_shows_trend[base_shows_trend["ano_mes"] == mes]
-                        qtd_mes = count_shows_analytics(df_mes)
+                        qtd_mes = count_shows(df_mes)
                         if qtd_mes > 0:
-                            ticket_mes = calcular_ticket_medio_analytics(df_mes)
+                            ticket_mes = calcular_ticket_medio(df_mes)
                             ticket_por_mes.append({"Mês": mes, "Ticket Médio": ticket_mes, "Shows": qtd_mes})
                     
                     if ticket_por_mes:
