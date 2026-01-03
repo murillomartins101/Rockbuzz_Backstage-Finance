@@ -614,19 +614,6 @@ def count_shows(df: pd.DataFrame) -> int:
                         qtd_sem_evento += int(sem_desc_mask.sum())  # Último recurso: conta linhas
                     else:
                         qtd_sem_evento += len(sem_evento_sem_data)
-            else:
-                # Não tem coluna data, tenta descrição (normalizada e case-insensitive)
-                # Não tem coluna data, tenta descrição normalizada
-                if "descricao" in sem_evento.columns:
-                    desc = sem_evento["descricao"].astype(str).str.strip().str.casefold()
-                    com_desc_mask = desc.ne("")
-                    sem_desc_mask = desc.eq("")
-                    
-                    # Conta descrições únicas (já normalizadas)
-                    qtd_sem_evento += int(desc[com_desc_mask].nunique())
-                    qtd_sem_evento += int(sem_desc_mask.sum())
-                else:
-                    qtd_sem_evento += len(sem_evento)
         
         return qtd_eventos + qtd_sem_evento
     
@@ -2178,5 +2165,6 @@ with st.sidebar:
     st.caption("**Rockbuzz - Gestão Financeira**")
     st.caption("Versão 2.3.0")
     st.caption("© 2025 - Todos os direitos reservados")
+
 
 
