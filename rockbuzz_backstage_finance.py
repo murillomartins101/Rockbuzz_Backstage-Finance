@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 import io
-import time
 from datetime import datetime, timedelta, date
 from typing import List, Optional
 
@@ -741,7 +740,7 @@ def ensure_ws_with_header(sh, title="lancamentos"):
 # =============================================================================
 # LEITURA / ESCRITA (com _row estável)
 # =============================================================================
-@st.cache_data(show_spinner=False, ttl=10)
+@st.cache_data(show_spinner=False, ttl=120)
 def read_sheet(sheet_name: str = "lancamentos") -> pd.DataFrame:
     """
     Lê dados do Google Sheets e:
@@ -1834,44 +1833,20 @@ elif page == "📒 Lançamentos":
 
                 if salvar_edicao:
                     try:
-                        # Validar _row antes de processar
-                        if "_row" not in lancamento or lancamento["_row"] is None:
-                            raise ValueError("Índice _row não encontrado no lançamento")
-                        
-                        linha_sheets = int(lancamento["_row"])
-                        
-                        # Validar se _row é válido
-                        if linha_sheets < 0:
-                            raise ValueError(f"Índice _row inválido: {linha_sheets}")
-                        
                         sign = 1 if novoTipo == "Entrada" else -1
                         novo_valor_com_sinal = sign * float(novo_valor)
+                        linha_sheets = int(lancamento["_row"])  # <— linha real no Sheets
                         nova_linha = [
                             pd.to_datetime(nova_data).strftime("%Y-%m-%d"),
                             novoTipo, nova_categoria, nova_descricao, nova_conta,
                             novo_valor_com_sinal, novo_quem, novo_evento, novas_tags
                         ]
-                        
-                        # Limpar cache ANTES da atualização
-                        st.cache_data.clear()
-                        st.cache_resource.clear()
-                        
                         update_row("lancamentos", linha_sheets, nova_linha)
-                        
-                        # Limpar cache DEPOIS da atualização
                         st.cache_data.clear()
-                        st.cache_resource.clear()
-                        
                         st.success("✅ Lançamento atualizado com sucesso!")
-                        time.sleep(0.5)  # Aguardar atualização
                         st.rerun()
-                    except ValueError as ve:
-                        st.error(f"❌ Erro de validação: {ve}")
                     except Exception as e:
                         st.error(f"❌ Erro ao atualizar: {e}")
-                        # Debug info apenas em desenvolvimento
-                        if st.session_state.get("debug_mode", False):
-                            st.error(f"Debug - Linha: {linha_sheets}, Tipo: {novoTipo}, Categoria: {nova_categoria}")
 
                 if excluir:
                     st.session_state["confirm_delete_idx"] = idx_original
