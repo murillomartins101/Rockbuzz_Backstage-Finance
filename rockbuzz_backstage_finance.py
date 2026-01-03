@@ -597,6 +597,102 @@ def calcular_ticket_medio(df: pd.DataFrame) -> float:
     qtd = count_shows(df)
     return float(receitas) / qtd if qtd else 0.0
 
+def count_shows_analytics(df: pd.DataFrame) -> int:
+    """
+    Conta shows para a aba Analytics Avançados.
+    - Filtra categoria 'Shows' e somente receitas (tipo == 'Entrada' ou valor > 0).
+    - Conta eventos nomeados distintos (case-insensitive).
+    - Para linhas sem evento: deduplica por data (dia), fallback por descrição, último recurso conta linhas.
+    """
+    if df is None or df.empty:
+        return 0
+    
+    # Filtra categoria Shows
+    base = df.loc[_only_shows_mask(df)].copy()
+    if base.empty:
+        return 0
+    
+    # Considera somente receitas
+    if "tipo" in base.columns:
+        tipo = base["tipo"].astype(str).str.strip().str.casefold()
+        base = base.loc[tipo.eq("entrada") | (base["valor"] > 0)].copy()
+    else:
+        base = base.loc[base["valor"] > 0].copy()
+    
+    if base.empty:
+        return 0
+    
+    # Conta eventos nomeados distintos
+    if "evento" in base.columns:
+        ev = base["evento"].astype(str).str.strip()
+        com_evento = base.loc[ev.ne("")].copy()
+        sem_evento = base.loc[ev.eq("")].copy()
+        
+        # Eventos nomeados (case-insensitive)
+        qtd_eventos = int(com_evento["evento"].str.casefold().nunique()) if not com_evento.empty else 0
+        
+        # Linhas sem evento: deduplica por data (dia)
+        qtd_sem_evento = 0
+        if not sem_evento.empty:
+            if "data" in sem_evento.columns:
+                # Tenta deduplicar por data (dia)
+                sem_evento_com_data = sem_evento.loc[sem_evento["data"].notna()].copy()
+                sem_evento_sem_data = sem_evento.loc[sem_evento["data"].isna()].copy()
+                
+                if not sem_evento_com_data.empty:
+                    # Conta dias únicos
+                    qtd_sem_evento += int(sem_evento_com_data["data"].dt.date.nunique())
+                
+                if not sem_evento_sem_data.empty:
+                    # Fallback por descrição
+                    if "descricao" in sem_evento_sem_data.columns:
+                        desc = sem_evento_sem_data["descricao"].astype(str).str.strip()
+                        com_desc = sem_evento_sem_data.loc[desc.ne("")].copy()
+                        sem_desc = sem_evento_sem_data.loc[desc.eq("")].copy()
+                        
+                        qtd_sem_evento += int(com_desc["descricao"].nunique()) if not com_desc.empty else 0
+                        qtd_sem_evento += len(sem_desc)  # Último recurso: conta linhas
+                    else:
+                        qtd_sem_evento += len(sem_evento_sem_data)
+            else:
+                # Não tem coluna data, tenta descrição
+                if "descricao" in sem_evento.columns:
+                    desc = sem_evento["descricao"].astype(str).str.strip()
+                    com_desc = sem_evento.loc[desc.ne("")].copy()
+                    sem_desc = sem_evento.loc[desc.eq("")].copy()
+                    
+                    qtd_sem_evento += int(com_desc["descricao"].nunique()) if not com_desc.empty else 0
+                    qtd_sem_evento += len(sem_desc)
+                else:
+                    qtd_sem_evento += len(sem_evento)
+        
+        return qtd_eventos + qtd_sem_evento
+    
+    # Se não tem coluna evento, conta linhas (fallback)
+    return len(base)
+
+def calcular_ticket_medio_analytics(df: pd.DataFrame) -> float:
+    """
+    Ticket médio para Analytics Avançados = receitas de shows / count_shows_analytics.
+    Receita = tipo == 'Entrada' (quando existir) ou valor > 0.
+    """
+    if df is None or df.empty:
+        return 0.0
+    base = df.loc[_only_shows_mask(df)].copy()
+    if base.empty:
+        return 0.0
+
+    if "tipo" in base.columns:
+        tipo = base["tipo"].astype(str).str.strip().str.casefold()
+        receitas = base.loc[tipo.eq("entrada"), "valor"].sum()
+        if receitas == 0:
+            receitas = base.loc[base["valor"] > 0, "valor"].sum()
+    else:
+        receitas = base.loc[base["valor"] > 0, "valor"].sum()
+
+    qtd = count_shows_analytics(df)
+    return float(receitas) / qtd if qtd else 0.0
+
 def get_periodo_descricao(dt_min: date, dt_max: date) -> str:
     return f"{dt_min.strftime('%d/%m/%Y')} a {dt_max.strftime('%d/%m/%Y')}" if dt_min != dt_max else dt_min.strftime("%d/%m/%Y")
 
@@ -1347,6 +1443,10 @@ if page == "📊 Dashboard":
             with tab6:
                 st.markdown('<div class="section-header">📉 Analytics Avançados</div>', unsafe_allow_html=True)
                 
+                # Calcular métricas específicas do Analytics
+                qtd_shows_analytics = count_shows_analytics(dfp)
+                ticket_medio_analytics = calcular_ticket_medio_analytics(dfp)
+                
                 # Seção 1: Comparação com Período Anterior
                 st.markdown('<div class="card-container">', unsafe_allow_html=True)
                 st.markdown("**📊 Comparação com Período Anterior**")
@@ -1358,7 +1458,9 @@ if page == "📊 Dashboard":
                     atual_kpis = [
                         {'icon': '💰', 'label': 'Receitas', 'value': brl(receitas), 'card_type': 'receitas'},
                         {'icon': '💸', 'label': 'Despesas', 'value': brl(despesas), 'card_type': 'despesas'},
-                        {'icon': '📈', 'label': 'Resultado', 'value': brl(resultado), 'card_type': 'resultado'}
+                        {'icon': '📈', 'label': 'Resultado', 'value': brl(resultado), 'card_type': 'resultado'},
+                        {'icon': '🎤', 'label': 'Shows (Analytics)', 'value': str(int(qtd_shows_analytics)), 'card_type': 'shows'},
+                        {'icon': '🎫', 'label': 'Ticket Médio', 'value': brl(ticket_medio_analytics) if qtd_shows_analytics > 0 else "N/A", 'card_type': 'ticket'}
                     ]
                     st.markdown(render_kpi_cards(atual_kpis), unsafe_allow_html=True)
                 
@@ -1393,13 +1495,13 @@ if page == "📊 Dashboard":
                 if not base_shows_trend.empty:
                     base_shows_trend["ano_mes"] = base_shows_trend["data"].dt.to_period("M").astype(str)
                     
-                    # Calcular ticket médio por mês
+                    # Calcular ticket médio por mês usando funções analytics
                     ticket_por_mes = []
                     for mes in sorted(base_shows_trend["ano_mes"].unique()):
                         df_mes = base_shows_trend[base_shows_trend["ano_mes"] == mes]
-                        qtd_mes = count_shows(df_mes)
+                        qtd_mes = count_shows_analytics(df_mes)
                         if qtd_mes > 0:
-                            ticket_mes = calcular_ticket_medio(df_mes)
+                            ticket_mes = calcular_ticket_medio_analytics(df_mes)
                             ticket_por_mes.append({"Mês": mes, "Ticket Médio": ticket_mes, "Shows": qtd_mes})
                     
                     if ticket_por_mes:
