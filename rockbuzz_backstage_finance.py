@@ -560,7 +560,7 @@ def count_shows(df: pd.DataFrame) -> int:
     Conta shows exclusivamente na categoria 'Shows'.
     - Filtra categoria 'Shows' e somente receitas (tipo == 'Entrada' ou valor > 0).
     - Conta eventos nomeados distintos (case-insensitive).
-    - Para linhas sem evento: deduplica por data (dia), fallback por descrição, último recurso conta linhas.
+    - Para linhas sem evento: deduplica por data (dia), fallback por descrição normalizada (case-insensitive), último recurso conta linhas.
     """
     if df is None or df.empty:
         return 0
@@ -602,25 +602,27 @@ def count_shows(df: pd.DataFrame) -> int:
                     qtd_sem_evento += int(sem_evento_com_data["data"].dt.date.nunique())
                 
                 if not sem_evento_sem_data.empty:
-                    # Fallback por descrição
+                    # Fallback por descrição normalizada (case-insensitive)
                     if "descricao" in sem_evento_sem_data.columns:
-                        desc = sem_evento_sem_data["descricao"].astype(str).str.strip()
-                        com_desc = sem_evento_sem_data.loc[desc.ne("")].copy()
-                        sem_desc = sem_evento_sem_data.loc[desc.eq("")].copy()
+                        desc = sem_evento_sem_data["descricao"].astype(str).str.strip().str.casefold()
+                        com_desc_mask = desc.ne("")
+                        sem_desc_mask = desc.eq("")
                         
-                        qtd_sem_evento += int(com_desc["descricao"].nunique()) if not com_desc.empty else 0
-                        qtd_sem_evento += len(sem_desc)  # Último recurso: conta linhas
+                        # Conta descrições únicas (já normalizadas)
+                        qtd_sem_evento += int(desc[com_desc_mask].nunique())
+                        qtd_sem_evento += int(sem_desc_mask.sum())  # Último recurso: conta linhas
                     else:
                         qtd_sem_evento += len(sem_evento_sem_data)
             else:
-                # Não tem coluna data, tenta descrição
+                # Não tem coluna data, tenta descrição normalizada
                 if "descricao" in sem_evento.columns:
-                    desc = sem_evento["descricao"].astype(str).str.strip()
-                    com_desc = sem_evento.loc[desc.ne("")].copy()
-                    sem_desc = sem_evento.loc[desc.eq("")].copy()
+                    desc = sem_evento["descricao"].astype(str).str.strip().str.casefold()
+                    com_desc_mask = desc.ne("")
+                    sem_desc_mask = desc.eq("")
                     
-                    qtd_sem_evento += int(com_desc["descricao"].nunique()) if not com_desc.empty else 0
-                    qtd_sem_evento += len(sem_desc)
+                    # Conta descrições únicas (já normalizadas)
+                    qtd_sem_evento += int(desc[com_desc_mask].nunique())
+                    qtd_sem_evento += int(sem_desc_mask.sum())
                 else:
                     qtd_sem_evento += len(sem_evento)
         
