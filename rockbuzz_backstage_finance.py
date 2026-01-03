@@ -1,1 +1,0 @@
-I need to first retrieve the current file content to make the specific line changes. However, since you've provided the exact SHA and the specific changes needed, I'll need to get the full file content first to apply these changes correctly.
