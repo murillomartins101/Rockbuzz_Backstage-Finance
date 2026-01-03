@@ -1834,6 +1834,10 @@ elif page == "📒 Lançamentos":
 
                 if salvar_edicao:
                     try:
+                        # Validar _row antes de processar
+                        if "_row" not in lancamento or lancamento["_row"] is None:
+                            raise ValueError("Índice _row não encontrado no lançamento")
+                        
                         linha_sheets = int(lancamento["_row"])
                         
                         # Validar se _row é válido
@@ -1861,9 +1865,13 @@ elif page == "📒 Lançamentos":
                         st.success("✅ Lançamento atualizado com sucesso!")
                         time.sleep(0.5)  # Aguardar atualização
                         st.rerun()
+                    except ValueError as ve:
+                        st.error(f"❌ Erro de validação: {ve}")
                     except Exception as e:
                         st.error(f"❌ Erro ao atualizar: {e}")
-                        st.error(f"Linha Sheets: {linha_sheets}, Dados: {nova_linha}")  # DEBUG
+                        # Debug info apenas em desenvolvimento
+                        if st.session_state.get("debug_mode", False):
+                            st.error(f"Debug - Linha: {linha_sheets}, Tipo: {novoTipo}, Categoria: {nova_categoria}")
 
                 if excluir:
                     st.session_state["confirm_delete_idx"] = idx_original
