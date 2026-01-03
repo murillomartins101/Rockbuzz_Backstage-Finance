@@ -386,6 +386,35 @@ st.markdown("""
         box-shadow: 0 0 0 2px rgba(251, 191, 36, 0.2);
     }
     
+    /* Form Labels - Fix Visibility */
+    .stTextInput label,
+    .stTextArea label,
+    .stSelectbox label,
+    .stNumberInput label,
+    .stDateInput label,
+    .stTimeInput label,
+    .stMultiSelect label {
+        color: #1a1a2e !important;
+        font-weight: 600 !important;
+        font-size: 0.875rem !important;
+        margin-bottom: 0.5rem !important;
+        display: block !important;
+    }
+    
+    /* Labels within forms */
+    .stForm label {
+        color: #1a1a2e !important;
+        font-weight: 500 !important;
+    }
+    
+    /* Ensure label contrast with data attributes */
+    [data-testid="stForm"] label,
+    div[data-baseweb="input"] label,
+    div[data-baseweb="select"] label,
+    div[data-baseweb="textarea"] label {
+        color: #1a1a2e !important;
+    }
+    
     /* Alert Boxes */
     .stAlert {
         border-radius: 8px;
