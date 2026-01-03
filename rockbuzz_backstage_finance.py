@@ -740,7 +740,7 @@ def ensure_ws_with_header(sh, title="lancamentos"):
 # =============================================================================
 # LEITURA / ESCRITA (com _row estável)
 # =============================================================================
-@st.cache_data(show_spinner=False, ttl=120)
+@st.cache_data(show_spinner=False)
 def read_sheet(sheet_name: str = "lancamentos") -> pd.DataFrame:
     """
     Lê dados do Google Sheets e:
@@ -2178,4 +2178,5 @@ with st.sidebar:
     st.caption("**Rockbuzz - Gestão Financeira**")
     st.caption("Versão 2.3.0")
     st.caption("© 2025 - Todos os direitos reservados")
+
 
