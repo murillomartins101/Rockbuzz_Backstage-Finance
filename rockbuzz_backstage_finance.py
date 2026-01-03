@@ -846,12 +846,13 @@ def parse_legacy_excel(file: bytes) -> pd.DataFrame:
 # =============================================================================
 with st.sidebar:
     # Logo with fallback - try multiple paths
+    # Check for logo in various locations with different naming conventions
     logo_displayed = False
     candidate_paths = [
-        Path(__file__).with_name("LOGO DEFINITIVO FUNDO ESCURO.png"),
-        Path(__file__).parent / "assets" / "logo.png",
-        Path("LOGO DEFINITIVO FUNDO ESCURO.png"),
-        Path("assets/LOGO DEFINITIVO FUNDO ESCURO.png")
+        Path(__file__).with_name("LOGO DEFINITIVO FUNDO ESCURO.png"),  # Same dir as script
+        Path(__file__).parent / "assets" / "logo.png",  # Simplified name in assets
+        Path("LOGO DEFINITIVO FUNDO ESCURO.png"),  # Current working directory
+        Path("assets/LOGO DEFINITIVO FUNDO ESCURO.png")  # Original name in assets
     ]
     
     for logo_path in candidate_paths:
@@ -861,9 +862,12 @@ with st.sidebar:
                 logo_displayed = True
                 break
             except Exception:
+                # Catch any image loading errors and continue trying other paths
+                # Using broad exception to handle various Streamlit/PIL errors
                 continue
     
     if not logo_displayed:
+        # Fallback when no logo is found or loadable
         st.markdown("### Rockbuzz | Backstage Finance")
     
     st.markdown("### Gestão Financeira")
