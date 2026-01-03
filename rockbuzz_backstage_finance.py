@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import io
 from datetime import datetime, timedelta, date
+from pathlib import Path
 from typing import List, Optional
 
 import numpy as np
@@ -844,7 +845,27 @@ def parse_legacy_excel(file: bytes) -> pd.DataFrame:
 # SIDEBAR
 # =============================================================================
 with st.sidebar:
-    st.image("LOGO DEFINITIVO FUNDO ESCURO.png")
+    # Logo with fallback - try multiple paths
+    logo_displayed = False
+    candidate_paths = [
+        Path(__file__).with_name("LOGO DEFINITIVO FUNDO ESCURO.png"),
+        Path(__file__).parent / "assets" / "logo.png",
+        Path("LOGO DEFINITIVO FUNDO ESCURO.png"),
+        Path("assets/LOGO DEFINITIVO FUNDO ESCURO.png")
+    ]
+    
+    for logo_path in candidate_paths:
+        if logo_path.exists():
+            try:
+                st.image(str(logo_path))
+                logo_displayed = True
+                break
+            except Exception:
+                continue
+    
+    if not logo_displayed:
+        st.markdown("### Rockbuzz | Backstage Finance")
+    
     st.markdown("### Gestão Financeira")
     st.markdown("---")
     page = st.radio(
