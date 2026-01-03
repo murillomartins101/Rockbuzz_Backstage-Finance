@@ -992,8 +992,8 @@ if page == "📊 Dashboard":
                 font=dict(family="Inter, sans-serif", size=11, color="#4b5563"),
                 paper_bgcolor='rgba(0,0,0,0)',
                 plot_bgcolor='rgba(0,0,0,0)',
-                margin=dict(l=40, r=20, t=50, b=40),
-                title_font=dict(size=14, color='#1a1a2e', family="Inter, sans-serif"),
+                margin=dict(l=40, r=20, t=60, b=40),
+                title_font=dict(size=16, color='#0f172a', family="Inter, sans-serif", weight=600),
                 hoverlabel=dict(
                     bgcolor='#1a1a2e',
                     font_size=11,
@@ -1006,7 +1006,7 @@ if page == "📊 Dashboard":
                 showgrid=True,
                 gridcolor='#e5e7eb',
                 linecolor='#e5e7eb',
-                tickfont=dict(size=10)
+                tickfont=dict(size=10, color='#4b5563')
             )
             
             legend_base = dict(
@@ -1071,8 +1071,8 @@ if page == "📊 Dashboard":
                             title=dict(text="Top 5 Categorias de Despesa", x=0.5, xanchor='center'),
                             height=420,
                             showlegend=False,
-                            xaxis=dict(showgrid=True, gridcolor='#f1f5f9', title=''),
-                            yaxis=dict(showgrid=False, title='')
+                            xaxis={**axis_style, 'showgrid': True, 'title': ''},
+                            yaxis={**axis_style, 'showgrid': False, 'title': ''}
                         )
                         st.plotly_chart(fig_top, use_container_width=True)
                         st.markdown('</div>', unsafe_allow_html=True)
@@ -1113,8 +1113,8 @@ if page == "📊 Dashboard":
                         **chart_layout,
                         title=dict(text="Receitas vs Despesas por Mês", x=0.5, xanchor='center'),
                         barmode='group',
-                        xaxis=dict(title='Mês', showgrid=False),
-                        yaxis=dict(title='Valor (R$)', showgrid=True, gridcolor='#f1f5f9'),
+                        xaxis={**axis_style, 'title': 'Mês', 'showgrid': False},
+                        yaxis={**axis_style, 'title': 'Valor (R$)', 'showgrid': True},
                         height=500,
                         hovermode='x unified',
                         legend={**legend_base, 'orientation': 'h', 'yanchor': 'bottom', 'y': 1.02, 'xanchor': 'center', 'x': 0.5}
@@ -1170,8 +1170,8 @@ if page == "📊 Dashboard":
                     fig_evol.update_layout(
                         **chart_layout,
                         title=dict(text="Evolução do Saldo Acumulado", x=0.5, xanchor='center'),
-                        xaxis=dict(title='Data', showgrid=False),
-                        yaxis=dict(title='Saldo (R$)', showgrid=True, gridcolor='#f1f5f9'),
+                        xaxis={**axis_style, 'title': 'Data', 'showgrid': False},
+                        yaxis={**axis_style, 'title': 'Saldo (R$)', 'showgrid': True},
                         height=500,
                         hovermode='x unified',
                         showlegend=False
@@ -1228,8 +1228,8 @@ if page == "📊 Dashboard":
                         **chart_layout,
                         title=dict(text="Saldo por Categoria", x=0.5, xanchor='center'),
                         height=max(400, len(cat_agg) * 40),
-                        xaxis=dict(title='Saldo (R$)', showgrid=True, gridcolor='#f1f5f9', zeroline=True, zerolinecolor='#94a3b8', zerolinewidth=2),
-                        yaxis=dict(title='', showgrid=False)
+                        xaxis={**axis_style, 'title': 'Saldo (R$)', 'showgrid': True, 'zeroline': True, 'zerolinecolor': '#94a3b8', 'zerolinewidth': 2},
+                        yaxis={**axis_style, 'title': '', 'showgrid': False}
                     )
                     st.plotly_chart(fig_cat, use_container_width=True)
                     st.markdown('</div>', unsafe_allow_html=True)
@@ -1298,8 +1298,8 @@ if page == "📊 Dashboard":
                                 **chart_layout,
                                 title=dict(text="Top 10 Shows por Receita", x=0.5, xanchor='center'),
                                 height=max(350, len(eventos_sorted) * 40),
-                                xaxis=dict(title='Receita (R$)', showgrid=True, gridcolor='#f1f5f9'),
-                                yaxis=dict(title='', showgrid=False)
+                                xaxis={**axis_style, 'title': 'Receita (R$)', 'showgrid': True},
+                                yaxis={**axis_style, 'title': '', 'showgrid': False}
                             )
                             st.plotly_chart(fig_shows, use_container_width=True)
                             st.markdown('</div>', unsafe_allow_html=True)
@@ -1389,8 +1389,8 @@ if page == "📊 Dashboard":
                         fig_ticket.update_layout(
                             **chart_layout,
                             title=dict(text="Evolução do Ticket Médio por Show", x=0.5, xanchor='center'),
-                            xaxis=dict(title='Mês', showgrid=False),
-                            yaxis=dict(title='Ticket Médio (R$)', showgrid=True, gridcolor='#f1f5f9'),
+                            xaxis={**axis_style, 'title': 'Mês', 'showgrid': False},
+                            yaxis={**axis_style, 'title': 'Ticket Médio (R$)', 'showgrid': True},
                             height=400, hovermode='x unified',
                             showlegend=False
                         )
@@ -1469,8 +1469,8 @@ if page == "📊 Dashboard":
                     fig_proj.update_layout(
                         **chart_layout,
                         title=dict(text="Projeção Financeira (baseada na média dos últimos 3 meses)", x=0.5, xanchor='center'),
-                        xaxis=dict(title='Mês', showgrid=False),
-                        yaxis=dict(title='Valor (R$)', showgrid=True, gridcolor='#f1f5f9'),
+                        xaxis={**axis_style, 'title': 'Mês', 'showgrid': False},
+                        yaxis={**axis_style, 'title': 'Valor (R$)', 'showgrid': True},
                         yaxis2=dict(title="Saldo Acumulado (R$)", overlaying='y', side='right', showgrid=False),
                         barmode='group',
                         height=450,
@@ -1524,8 +1524,8 @@ if page == "📊 Dashboard":
                     fig_saz.update_layout(
                         **chart_layout,
                         title=dict(text="Receitas e Despesas por Mês do Ano (Sazonalidade)", x=0.5, xanchor='center'),
-                        xaxis=dict(title='Mês', showgrid=False),
-                        yaxis=dict(title='Valor (R$)', showgrid=True, gridcolor='#f1f5f9'),
+                        xaxis={**axis_style, 'title': 'Mês', 'showgrid': False},
+                        yaxis={**axis_style, 'title': 'Valor (R$)', 'showgrid': True},
                         barmode='group',
                         height=400,
                         legend={**legend_base, 'orientation': 'h', 'yanchor': 'bottom', 'y': 1.02, 'xanchor': 'center', 'x': 0.5}
