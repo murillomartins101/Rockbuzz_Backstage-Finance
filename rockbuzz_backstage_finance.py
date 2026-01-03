@@ -605,22 +605,22 @@ def count_shows(df: pd.DataFrame) -> int:
                     # Fallback por descrição (normalizada e case-insensitive)
                     if "descricao" in sem_evento_sem_data.columns:
                         desc = sem_evento_sem_data["descricao"].astype(str).str.strip().str.casefold()
-                        com_desc = sem_evento_sem_data.loc[desc.ne("")].copy()
-                        sem_desc = sem_evento_sem_data.loc[desc.eq("")].copy()
+                        com_desc_mask = desc.ne("")
+                        sem_desc_mask = desc.eq("")
                         
-                        qtd_sem_evento += int(com_desc["descricao"].str.strip().str.casefold().nunique()) if not com_desc.empty else 0
-                        qtd_sem_evento += len(sem_desc)  # Último recurso: conta linhas
+                        qtd_sem_evento += int(desc[com_desc_mask].nunique()) if com_desc_mask.any() else 0
+                        qtd_sem_evento += int(sem_desc_mask.sum())  # Último recurso: conta linhas
                     else:
                         qtd_sem_evento += len(sem_evento_sem_data)
             else:
                 # Não tem coluna data, tenta descrição (normalizada e case-insensitive)
                 if "descricao" in sem_evento.columns:
                     desc = sem_evento["descricao"].astype(str).str.strip().str.casefold()
-                    com_desc = sem_evento.loc[desc.ne("")].copy()
-                    sem_desc = sem_evento.loc[desc.eq("")].copy()
+                    com_desc_mask = desc.ne("")
+                    sem_desc_mask = desc.eq("")
                     
-                    qtd_sem_evento += int(com_desc["descricao"].str.strip().str.casefold().nunique()) if not com_desc.empty else 0
-                    qtd_sem_evento += len(sem_desc)
+                    qtd_sem_evento += int(desc[com_desc_mask].nunique()) if com_desc_mask.any() else 0
+                    qtd_sem_evento += int(sem_desc_mask.sum())
                 else:
                     qtd_sem_evento += len(sem_evento)
         
